@@ -43,7 +43,7 @@ def eval_value(min: float, max: float, eval: str, t: float) -> float:
 
 @click.command()
 @click.option('--config', '-c', required=True, help='JSON string or @path/to/file.json')
-@click.option('--verbose', '-v', required=True, is_flag=True, help='Enable to print messages')
+@click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
 def run(config: str, verbose: bool):
     cfg: JSONType = {}
     try:
