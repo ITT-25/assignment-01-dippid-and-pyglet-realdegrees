@@ -1,2 +1,5 @@
 click==8.1.8
+numpy==2.2.5
+pyglet==2.1.5
+pyqtgraph==0.13.7
 simpleeval==1.0.3
