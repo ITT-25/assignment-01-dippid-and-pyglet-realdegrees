@@ -1,11 +1,11 @@
 from __future__ import annotations
-import enum
 import math
-from typing import Callable, Dict, List, Union
+from typing import Dict, List, Union
 import click
 import socket
 import json
 import time
+from simpleeval import simple_eval
 
 JSONType = Union[
     Dict[str, "JSONType"],
@@ -15,32 +15,6 @@ JSONType = Union[
     bool,
     None
 ]
-
-
-class ECurve(enum.Enum):
-    Sin = "sin"
-    Cos = "cos"
-    Tan = "tan"
-    Sqrt = "sqrt"
-    Log = "log"
-    Exp = "exp"
-    Abs = "abs"
-
-
-# Source: The normalization of the curves was done by github copilot
-# Prompt: "/edit  some of these are returned in radians however I need the result to always be between 1 and 0 based on the time so the result basically goes along the curve as t increases"
-curves: dict[ECurve, Callable[[float], float]] = {
-    ECurve.Sin: lambda t: (math.sin(t) + 1) / 2,
-    ECurve.Cos: lambda t: (math.cos(t) + 1) / 2,
-    ECurve.Tan: lambda t: (math.tan(t) % 1 + 1) / 2,  # Normalize to [0, 1]
-    # Ensure non-negative
-    ECurve.Sqrt: lambda t: (math.sqrt(t % 1) if t % 1 >= 0 else 0),
-    # Avoid log(0)
-    ECurve.Log: lambda t: (math.log(t % 1 + 1) if t % 1 > 0 else 0),
-    ECurve.Exp: lambda t: (math.exp(t % 1) % 1),  # Normalize to [0, 1]
-    ECurve.Abs: lambda t: (abs(t) % 1),  # Example using abs of sin
-}
-
 
 def eval_cfg(cfg: JSONType, t: float) -> JSONType:
 
@@ -55,18 +29,17 @@ def eval_cfg(cfg: JSONType, t: float) -> JSONType:
     return cfg
 
 
-def eval_value(min: float, max: float, eval_curve: str, t: float) -> float:
-    # evaluate the curve
-    try:
-        fn = ECurve(eval_curve)
-        result = curves[fn](t)
-    except ValueError as curve_not_found_error:
-        raise ValueError(
-            f"eval must be one of {list(ECurve.__members__.keys())}") from curve_not_found_error
-        
-    # interpolate the result to the range [min, max]
-    result = result * (max - min) + min
-    return result
+def eval_value(min: float, max: float, eval: str, t: float) -> float:
+    names = {'t': t}
+    functions = {
+        'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
+        'sqrt': math.sqrt, 'log': math.log, 'exp': math.exp,
+        'abs': abs
+    }
+    # evaluate the expression and normalize it to the range [min, max]
+    result = simple_eval(eval, functions=functions, names=names)
+    normalized_result = result % 1
+    return normalized_result * (max - min) + min
 
 
 @click.command()
