@@ -44,7 +44,8 @@ def eval_value(min: float, max: float, eval: str, t: float) -> float:
 @click.command()
 @click.option('--config', '-c', required=True, help='JSON string or @path/to/file.json')
 @click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
-def run(config: str, verbose: bool):
+@click.option('--gui', '-g', required=False, is_flag=True, help='Enable to open a GUI showing the data')
+def run(config: str, verbose: bool, gui: bool):
     cfg: JSONType = {}
     try:
         cfg = json.loads(config)
