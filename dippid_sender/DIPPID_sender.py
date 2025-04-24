@@ -33,7 +33,7 @@ def eval_value(min: float, max: float, eval: str, t: float) -> float:
     functions = {
         'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
         'sqrt': math.sqrt, 'log': math.log, 'exp': math.exp,
-        'abs': abs
+        'abs': abs, 'pow': math.pow
     }
     # evaluate the expression and normalize it to the range [min, max]
     result = simple_eval(eval, functions=functions, names=names)
