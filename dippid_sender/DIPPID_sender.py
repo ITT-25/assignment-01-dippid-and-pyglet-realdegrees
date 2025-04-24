@@ -17,9 +17,8 @@ JSONType = Union[
 ]
 
 def eval_cfg(cfg: JSONType, t: float) -> JSONType:
-
     if isinstance(cfg, dict):
-        if set(cfg.keys()) == {"min", "max", "eval"}:
+        if all([key in cfg for key in ["min", "max", "eval"]]):
             return eval_value(cfg["min"], cfg["max"], cfg["eval"], t)
         return {key: eval_cfg(value, t) for key, value in cfg.items()}
 
