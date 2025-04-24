@@ -14,6 +14,17 @@ JSONType = Union[
     None
 ]
 
+def eval_cfg(cfg: JSONType, t: float) -> JSONType:
+
+    if isinstance(cfg, dict):
+        if set(cfg.keys()) == {"min", "max", "eval"}:
+            return eval_value(cfg["min"], cfg["max"], cfg["eval"], t)
+        return {key: eval_cfg(value, t) for key, value in cfg.items()}
+
+    elif isinstance(cfg, list):
+        return [eval_cfg(item, t) for item in cfg]
+
+    return cfg
 
 @click.command()
 @click.option('--config', '-c', required=True, help='JSON string or @path/to/file.json')
