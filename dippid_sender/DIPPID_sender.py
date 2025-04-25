@@ -8,7 +8,7 @@ from simpleeval import simple_eval
 from typing import TypedDict
 from typing import Dict
 from GUI import Visualizer
-
+import random
 
 class ValueConfig(TypedDict):
     min: float
@@ -49,7 +49,7 @@ def eval_leaf(leaf: ValueConfig, t: float) -> float:
     functions = {
         'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
         'sqrt': math.sqrt, 'log': math.log, 'exp': math.exp,
-        'abs': abs, 'pow': math.pow
+        'abs': abs, 'pow': math.pow, 'random': lambda: random.uniform(0, 1)
     }
     # evaluate the expression and normalize it to the range [min, max]
     result = simple_eval(leaf['eval'], functions=functions, names=names)

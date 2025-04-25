@@ -14,7 +14,7 @@
             "z": {
                 "min": -2,
                 "max": 8,
-                "eval": "tan(t)"
+                "eval": "random()"
             }
         }
     }
