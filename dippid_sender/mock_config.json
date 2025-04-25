@@ -4,6 +4,9 @@
             "x": "sin(t / 20) * 4 - 2",
             "y": "cos(t / 10) * 2 - 1",
             "z": "random() * 10 - 5"
-        }
+        },
+        "button_1": "button: sin(t / 2)",
+        "button_2": "button: sin(t * 5)",
+        "button_3": "button: random()"
     }
 }
