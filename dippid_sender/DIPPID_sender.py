@@ -12,6 +12,11 @@ import random
 
 
 class ButtonState:
+    """Class to persist buttons across multiple loops.
+
+    Stores the last 3 values to determine if the curve has flipped direction.
+    """
+
     def __init__(self, name: str, expr: str):
         self.name = name
         self.expr = expr
@@ -27,7 +32,7 @@ class ButtonState:
         else:
             return self.value_history[0]
 
-    def check_value_flip(self) -> bool:
+    def is_pressed(self) -> bool:
         """Check if the value has bounced at the upper limit"""
         if len(self.value_history) < 3:
             return False
@@ -42,43 +47,43 @@ class Config(TypedDict):
     interval: int
     ip: str
     port: int
-    mocks: Dict[str, Dict[str, str]]
+    mocks: MockConfig
 
 
-class EvaluatedConfig(Config):
-    mocks: Dict[str, Dict[str, float]]
+MockConfig = Dict[str, Dict[str, str] | str]
+MockData = Dict[str, Dict[str, float] | float]
 
 
-def get_data(mocks: Dict[str, Dict[str, str]], t: float) -> Dict[str, Dict[str, float | ButtonState]]:
-    evaluated: Dict[str, Dict[str, float | ButtonState]] = {}
+def get_data(mocks: MockConfig, t: float) -> MockData:
+    evaluated: MockData = {}
 
-    def evaluate_leaf(name: str, leaf: str) -> float:
+    def evaluate(name: str, value: str) -> float:
+        """Evaluate the math expression and store the result in evaluated."""
         # Default math evaluation
-        if not leaf.startswith('button:'):
-            evaluated[capability][name] = evaluate_math_expr(leaf, t)
+        if not value.startswith('button:'):
+            evaluated[capability][name] = evaluate_math_expr(value, t)
             return
 
         # Special case for buttons
         button = next((b for b in button_states if b.name == name), None)
         if not button:
-            button = ButtonState(name, leaf.split(':', 1)[1])
+            button = ButtonState(name, value.split(':', 1)[1])
             button_states.append(button)
 
         button.set_value(evaluate_math_expr(button.expr, t))
-        evaluated[capability][name] = 1 if button.check_value_flip() else 0
+        evaluated[capability][name] = 1 if button.is_pressed() else 0
 
     for capability, value in mocks.items():
         evaluated[capability] = {}
 
         if isinstance(value, str):
-            evaluate_leaf(capability, value)
-            continue
+            evaluate(capability, value)
         elif isinstance(value, dict):
-            for value_name, leaf in value.items():
-                if not isinstance(leaf, str):
+            for key, value in value.items():
+                if not isinstance(value, str):
                     raise TypeError(
-                        f"Invalid configuration for {capability}.{value_name}: Expected str, got {type(leaf)}")
-                evaluate_leaf(value_name, leaf)
+                        f"Invalid configuration for {capability}.{key}: Expected str, got {type(value)}")
+                evaluate(key, value)
         else:
             raise TypeError(
                 f"Invalid configuration for {capability}: Expected str or dict, got {type(value)}")
@@ -99,6 +104,7 @@ def evaluate_math_expr(math_expr: str, t: float) -> float:
         print(f"Unable to evaluate '{math_expr}'")
         return 0.0
 
+
 @click.command()
 @click.option('--config', '-c', required=True, help='JSON string or @path/to/file.json')
 @click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
@@ -116,7 +122,8 @@ def run(config: str, verbose: bool):
     ip, port, interval, mocks = cfg.get('ip', '127.0.0.1'), cfg.get(
         'port', 5700), cfg.get('interval', 100), cfg.get('mocks', {})
     if verbose:
-        print(f"Sending to {ip}:{port} every {interval}ms\nConfig:\n{json.dumps(mocks, indent=2)}")
+        print(
+            f"Sending to {ip}:{port} every {interval}ms\nConfig:\n{json.dumps(mocks, indent=2)}")
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     start_time = time.time()
