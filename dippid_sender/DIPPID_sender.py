@@ -11,6 +11,11 @@ from typing import Dict
 import random
 
 
+DEFAULT_PORT = 5700
+DEFAULT_IP = '127.0.0.1'
+DEFAULT_INTERVAL = 2
+
+
 class ButtonState:
     """Class to persist buttons across multiple loops.
 
@@ -57,11 +62,14 @@ MockData = Dict[str, Dict[str, float] | float]
 def get_data(mocks: MockConfig, t: float) -> MockData:
     evaluated: MockData = {}
 
-    def evaluate(name: str, value: str) -> float:
+    def evaluate(capability: str, name: Optional[str], value: str) -> float:
         """Evaluate the math expression and store the result in evaluated."""
         # Default math evaluation
         if not value.startswith('button:'):
-            evaluated[capability][name] = evaluate_math_expr(value, t)
+            if name is None:
+                evaluated[capability] = evaluate_math_expr(value, t)
+            else:
+                evaluated[capability][name] = evaluate_math_expr(value, t)
             return
 
         # Special case for buttons
@@ -71,19 +79,22 @@ def get_data(mocks: MockConfig, t: float) -> MockData:
             button_states.append(button)
 
         button.set_value(evaluate_math_expr(button.expr, t))
-        evaluated[capability][name] = 1 if button.is_pressed() else 0
+        if name is None:
+            evaluated[capability] = 1 if button.is_pressed() else 0
+        else:
+            evaluated[capability][name] = 1 if button.is_pressed() else 0
 
     for capability, value in mocks.items():
         evaluated[capability] = {}
 
         if isinstance(value, str):
-            evaluate(capability, value)
+            evaluate(capability, None, value)
         elif isinstance(value, dict):
             for key, value in value.items():
                 if not isinstance(value, str):
                     raise TypeError(
                         f"Invalid configuration for {capability}.{key}: Expected str, got {type(value)}")
-                evaluate(key, value)
+                evaluate(capability, key, value)
         else:
             raise TypeError(
                 f"Invalid configuration for {capability}: Expected str or dict, got {type(value)}")
@@ -119,8 +130,13 @@ def run(config: str, verbose: bool):
         except FileNotFoundError:
             raise FileNotFoundError(f"File not found: {config}")
 
-    ip, port, interval, mocks = cfg.get('ip', '127.0.0.1'), cfg.get(
-        'port', 5700), cfg.get('interval', 100), cfg.get('mocks', {})
+    ip, port, interval, mocks = (
+        cfg.get('ip', DEFAULT_IP),
+        cfg.get('port', DEFAULT_PORT),
+        cfg.get('interval', DEFAULT_INTERVAL),
+        cfg.get('mocks', {})
+    )
+    
     if verbose:
         print(
             f"Sending to {ip}:{port} every {interval}ms\nConfig:\n{json.dumps(mocks, indent=2)}")
