@@ -93,8 +93,11 @@ def evaluate_math_expr(math_expr: str, t: float) -> float:
         'sqrt': math.sqrt, 'log': math.log, 'exp': math.exp,
         'abs': abs, 'pow': math.pow, 'random': lambda: random.uniform(0, 1)
     }
-    return simple_eval(math_expr, functions=functions, names=names)
-
+    try:
+        return simple_eval(math_expr, functions=functions, names=names)
+    except Exception:
+        print(f"Unable to evaluate '{math_expr}'")
+        return 0.0
 
 @click.command()
 @click.option('--config', '-c', required=True, help='JSON string or @path/to/file.json')
@@ -110,10 +113,10 @@ def run(config: str, verbose: bool):
         except FileNotFoundError:
             raise FileNotFoundError(f"File not found: {config}")
 
-    ip, port, interval = cfg.get('ip', '127.0.0.1'), cfg.get(
-        'port', 5700), cfg.get('interval', 100)
+    ip, port, interval, mocks = cfg.get('ip', '127.0.0.1'), cfg.get(
+        'port', 5700), cfg.get('interval', 100), cfg.get('mocks', {})
     if verbose:
-        print(f"Sending to {ip}:{port} every {interval}ms")
+        print(f"Sending to {ip}:{port} every {interval}ms\nConfig:\n{json.dumps(mocks, indent=2)}")
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     start_time = time.time()
