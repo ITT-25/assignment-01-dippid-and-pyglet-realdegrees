@@ -45,6 +45,7 @@ MockData = Dict[str, Dict[str, float] | float]
 
 
 def evaluate_expr(math_expr: str, t: float) -> float:
+    """Evaluates a math expression with the given time value. Supports basic math functions."""
     functions = {
         'sin': lambda n: 0.5*(1+math.sin(2*math.pi*n)),
         'cos': lambda n: 0.5*(1+math.cos(2*math.pi*n)),
@@ -68,6 +69,7 @@ def evaluate_expr(math_expr: str, t: float) -> float:
 @click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
 @click.option('--truncate', '-t', required=False, help='Truncate values to this many decimal places', type=int)
 def run(config: str, verbose: bool, truncate: Optional[int]):
+    # Attempt to load the config from a JSON string or file, exit if it fails
     cfg: Config = {}
     try:
         cfg = json.loads(config)
@@ -78,6 +80,7 @@ def run(config: str, verbose: bool, truncate: Optional[int]):
         except FileNotFoundError:
             raise FileNotFoundError(f"File not found: {config}")
 
+    # Retrieve config values with defaults
     ip = cfg.get('ip', DEFAULT_IP)
     port = cfg.get('port', DEFAULT_PORT)
     interval = cfg.get('interval', DEFAULT_INTERVAL)
@@ -89,42 +92,63 @@ def run(config: str, verbose: bool, truncate: Optional[int]):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     start = time.time()
+    # Store button states to be able to detect button presses
     buttons: Dict[str, ButtonState] = {}
 
     while True:
+        # Store the time since start for capability evaluations
         t = time.time() - start
         data: MockData = {}
 
+        # Build each capability from the config and time
         for capability, value in mocks.items():
-            if isinstance(value, str):
-                value = {None: value}
-
-            sub: Dict[str, float] = {}
-            for key, expr in value.items():
-                if expr.startswith('button:'):
-                    button_name = (capability + '.' + key) if key else capability
-                    button = buttons.get(button_name, None) or ButtonState(
-                        button_name, expr.split(':', 1)[1])
-                    
-                    if button_name not in buttons:
-                        buttons[button_name] = button
-
-                    button_pressed = button.update(t)
-                    result = 1 if button_pressed else 0
-                else:
-                    result = evaluate_expr(expr, t)
-
-                if truncate is not None and truncate >= 0:
-                    result = round(result, truncate)
-                sub[key] = result
-
+            sub = build_capability(capability, value, t, truncate, buttons)
             data[capability] = sub.get(None) if None in sub else sub
 
+        # Send the data
         msg = json.dumps(data)
         if verbose:
             print('→', msg)
         sock.sendto(msg.encode(), (ip, port))
         time.sleep(interval / 1000)
+
+
+def build_capability(capability: str, value: str | Dict[str, str], t: float, truncate: Optional[int], buttons: Dict[str, ButtonState]) -> Dict[str, float]:
+    """Builds a capability from the given value. If the value is a string, it is treated as a single value capability with no subkeys."""
+
+    # Wrap the value in a dict with None key if it's a string
+    if isinstance(value, str):
+        value = {None: value}
+
+    # Evaluate each subkey
+    sub: Dict[str, float] = {}
+    for key, expr in value.items():
+        if not isinstance(expr, str):
+            raise ValueError(
+                f"Value for '{capability}.{key}' is not a string: {expr}")
+
+        if expr.startswith('button:'):
+            # Create or get the existing button state
+            button_name = (capability + '.' + key) if key else capability
+            button = buttons.get(button_name, None) or ButtonState(
+                button_name, expr.split(':', 1)[1])
+
+            if button_name not in buttons:
+                buttons[button_name] = button
+
+            # Update the button state and set result
+            button_pressed = button.update(t)
+            result = 1 if button_pressed else 0
+        else:
+            # Default math expression evaluation
+            result = evaluate_expr(expr, t)
+
+        # Truncate the result if specified
+        if truncate is not None and truncate >= 0:
+            result = round(result, truncate)
+
+        sub[key] = result
+    return sub
 
 
 if __name__ == "__main__":
