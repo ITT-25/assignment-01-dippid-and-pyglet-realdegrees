@@ -1,21 +1,9 @@
 {
     "mocks": {
         "accelerometer": {
-            "x": {
-                "min": -5,
-                "max": 5,
-                "eval": "sin(t)"
-            },
-            "y": {
-                "min": -5,
-                "max": 5,
-                "eval": "cos(t)"
-            },
-            "z": {
-                "min": -2,
-                "max": 8,
-                "eval": "random()"
-            }
+            "x": "sin(t / 20) * 4 - 2",
+            "y": "cos(t / 10) * 2 - 1",
+            "z": "random() * 10 - 5"
         }
     }
 }

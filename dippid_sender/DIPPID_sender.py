@@ -7,61 +7,49 @@ import time
 from simpleeval import simple_eval
 from typing import TypedDict
 from typing import Dict
-from GUI import Visualizer
 import random
-
-class ValueConfig(TypedDict):
-    min: float
-    max: float
-    eval: str
 
 
 class Config(TypedDict):
     interval: int
     ip: str
     port: int
-    mocks: Dict[str, Dict[str, ValueConfig]]
+    mocks: Dict[str, Dict[str, str]]
 
 
 class EvaluatedConfig(Config):
     mocks: Dict[str, Dict[str, float]]
 
 
-def eval_cfg(mocks: Dict[str, Dict[str, ValueConfig]], t: float) -> Dict[str, Dict[str, float]]:
+def get_data(mocks: Dict[str, Dict[str, str]], t: float) -> Dict[str, Dict[str, float]]:
     evaluated: Dict[str, Dict[str, float]] = {}
 
     for capability, values in mocks.items():
         evaluated[capability] = {}
         for value_name, leaf in values.items():
-            try:
-                parsed_leaf = ValueConfig(**leaf)
-                evaluated[capability][value_name] = eval_leaf(parsed_leaf, t)
-            except TypeError:
+            if not isinstance(leaf, str):
                 raise TypeError(
                     f"Invalid configuration for {capability}: {leaf}")
+            else:
+                evaluated[capability][value_name] = evaluate(leaf, t)
 
-            
     return evaluated
 
 
-def eval_leaf(leaf: ValueConfig, t: float) -> float:
+def evaluate(math_expr: str, t: float) -> float:
     names = {'t': t}
     functions = {
-        'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
+        'sin': lambda n: 0.5*(1 + math.sin(2 * n * math.pi)), 'cos': lambda n: 0.5*(1 + math.cos(2 * n * math.pi)), 'tan': lambda n: 0.5*(1 + math.tan(2 * n * math.pi)),
         'sqrt': math.sqrt, 'log': math.log, 'exp': math.exp,
         'abs': abs, 'pow': math.pow, 'random': lambda: random.uniform(0, 1)
     }
-    # evaluate the expression and normalize it to the range [min, max]
-    result = simple_eval(leaf['eval'], functions=functions, names=names)
-    normalized_result = (result + 1) / 2  # normalize to [0, 1]
-    return normalized_result * (leaf['max'] - leaf['min']) + leaf['min']
+    return simple_eval(math_expr, functions=functions, names=names)
 
 
 @click.command()
 @click.option('--config', '-c', required=True, help='JSON string or @path/to/file.json')
 @click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
-@click.option('--gui', '-g', required=False, is_flag=True, help='Enable to open a GUI showing the data')
-def run(config: str, verbose: bool, gui: bool):
+def run(config: str, verbose: bool):
     cfg: Config = {}
     try:
         cfg = json.loads(config)
@@ -79,18 +67,14 @@ def run(config: str, verbose: bool, gui: bool):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     start_time = time.time()
-    visualizer = Visualizer(cfg["mocks"]) if gui else None
 
     while True:
         t = (time.time() - start_time)
-        payload = eval_cfg(cfg["mocks"], t)
+        payload = get_data(cfg["mocks"], t)
 
         message = json.dumps(payload)
         if verbose:
             print('→', message)
-
-        if visualizer:
-            visualizer.update(payload)
 
         sock.sendto(message.encode(), (ip, port))
 
