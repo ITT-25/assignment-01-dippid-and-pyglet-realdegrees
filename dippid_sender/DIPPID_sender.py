@@ -108,10 +108,9 @@ def run(config: str, verbose: bool, truncate: Optional[int]):
         # Send the data
         msg = json.dumps(data)
         if verbose:
-            print('→', msg)
+            print(f'\nMockData at {f"{t//3600:02.0f}:{t%3600//60:02.0f}:{t%60:06.3f}"}\n', json.dumps(data, indent=4))
         sock.sendto(msg.encode(), (ip, port))
         time.sleep(interval / 1000)
-
 
 def build_capability(capability: str, value: str | Dict[str, str], t: float, truncate: Optional[int], buttons: Dict[str, ButtonState]) -> Dict[str, float]:
     """Builds a capability from the given value. If the value is a string, it is treated as a single value capability with no subkeys."""
