@@ -1,34 +1,50 @@
 from __future__ import annotations
 import math
-from typing import Dict, List, Union
 import click
 import socket
 import json
 import time
 from simpleeval import simple_eval
-
-JSONType = Union[
-    Dict[str, "JSONType"],
-    List["JSONType"],
-    float,
-    str,
-    bool,
-    None
-]
-
-def eval_cfg(cfg: JSONType, t: float) -> JSONType:
-    if isinstance(cfg, dict):
-        if all([key in cfg for key in ["min", "max", "eval"]]):
-            return eval_value(cfg["min"], cfg["max"], cfg["eval"], t)
-        return {key: eval_cfg(value, t) for key, value in cfg.items()}
-
-    elif isinstance(cfg, list):
-        return [eval_cfg(item, t) for item in cfg]
-
-    return cfg
+from typing import TypedDict
+from typing import Dict
+from GUI import Visualizer
 
 
-def eval_value(min: float, max: float, eval: str, t: float) -> float:
+class ValueConfig(TypedDict):
+    min: float
+    max: float
+    eval: str
+
+
+class Config(TypedDict):
+    interval: int
+    ip: str
+    port: int
+    mocks: Dict[str, Dict[str, ValueConfig]]
+
+
+class EvaluatedConfig(Config):
+    mocks: Dict[str, Dict[str, float]]
+
+
+def eval_cfg(mocks: Dict[str, Dict[str, ValueConfig]], t: float) -> Dict[str, Dict[str, float]]:
+    evaluated: Dict[str, Dict[str, float]] = {}
+
+    for capability, values in mocks.items():
+        evaluated[capability] = {}
+        for value_name, leaf in values.items():
+            try:
+                parsed_leaf = ValueConfig(**leaf)
+                evaluated[capability][value_name] = eval_leaf(parsed_leaf, t)
+            except TypeError:
+                raise TypeError(
+                    f"Invalid configuration for {capability}: {leaf}")
+
+            
+    return evaluated
+
+
+def eval_leaf(leaf: ValueConfig, t: float) -> float:
     names = {'t': t}
     functions = {
         'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
@@ -36,9 +52,9 @@ def eval_value(min: float, max: float, eval: str, t: float) -> float:
         'abs': abs, 'pow': math.pow
     }
     # evaluate the expression and normalize it to the range [min, max]
-    result = simple_eval(eval, functions=functions, names=names)
-    normalized_result = result % 1
-    return normalized_result * (max - min) + min
+    result = simple_eval(leaf['eval'], functions=functions, names=names)
+    normalized_result = (result + 1) / 2  # normalize to [0, 1]
+    return normalized_result * (leaf['max'] - leaf['min']) + leaf['min']
 
 
 @click.command()
@@ -46,7 +62,7 @@ def eval_value(min: float, max: float, eval: str, t: float) -> float:
 @click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
 @click.option('--gui', '-g', required=False, is_flag=True, help='Enable to open a GUI showing the data')
 def run(config: str, verbose: bool, gui: bool):
-    cfg: JSONType = {}
+    cfg: Config = {}
     try:
         cfg = json.loads(config)
     except json.JSONDecodeError:
@@ -63,6 +79,7 @@ def run(config: str, verbose: bool, gui: bool):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     start_time = time.time()
+    visualizer = Visualizer(cfg["mocks"]) if gui else None
 
     while True:
         t = (time.time() - start_time)
@@ -71,6 +88,10 @@ def run(config: str, verbose: bool, gui: bool):
         message = json.dumps(payload)
         if verbose:
             print('→', message)
+
+        if visualizer:
+            visualizer.update(payload)
+
         sock.sendto(message.encode(), (ip, port))
 
         time.sleep(interval / 1000)
