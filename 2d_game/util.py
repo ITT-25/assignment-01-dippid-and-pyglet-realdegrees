@@ -1,4 +1,7 @@
 from __future__ import annotations
+from pyglet.graphics import Batch
+gameobject_batch = Batch()
+ui_batch = Batch()
 
 class Vector2D:
     def __init__(self, x: float, y: float):
