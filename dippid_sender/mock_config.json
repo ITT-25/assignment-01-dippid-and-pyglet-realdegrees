@@ -1,5 +1,8 @@
 {
     "mocks": {
+        "gravity": {
+            "z": "sin(t / 5) * 9.81 * 2 - 9.81"
+        },
         "accelerometer": {
             "x": "sin(t / 20) * 4 - 2",
             "y": "cos(t / 10) * 2 - 1",
