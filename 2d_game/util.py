@@ -1,5 +1,14 @@
 from __future__ import annotations
 from pyglet.graphics import Batch
+from enum import Enum, auto
+
+class GameState(Enum):
+    INACTIVE = auto()
+    WAITING = auto()
+    PLAYING = auto()
+    RESETTING = auto()
+
+
 gameobject_batch = Batch()
 ui_batch = Batch()
 
