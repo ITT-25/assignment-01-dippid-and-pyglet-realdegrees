@@ -45,7 +45,6 @@ class Paddle(GameObject, SensorUDP):
         self.npc_offset_y = offset
 
     def on_input(self, gravity):
-        print(f"Gravity: {gravity}")
         if "z" in gravity:
             input = (
                 math.copysign(abs(gravity["z"] / 9.81) ** 1.5, gravity["z"])
@@ -92,7 +91,7 @@ class Paddle(GameObject, SensorUDP):
         ) or (self.ball.velocity.x > 0 and ball_center.x < paddle_center.x)
         distance_x = abs(ball_center.x - paddle_center.x)
         speed_factor = (
-            (NPC_MAX_BASE_SPEED + (1 - distance_x / self.window.width))
+            (NPC_MAX_BASE_SPEED + (0.5 - min(0.5, (distance_x) / self.window.width)))
             if is_moving_towards_paddle
             else NPC_MAX_BASE_SPEED / 2
         )
