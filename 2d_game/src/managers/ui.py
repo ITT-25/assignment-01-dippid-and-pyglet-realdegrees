@@ -28,10 +28,10 @@ class GameUI:
     conn_info_left: pyglet.text.Label
     conn_info_right: pyglet.text.Label
 
-    def __init__(self, window: "GameWindow", player_1: "Paddle", player_2: "Paddle") -> None:
+    def __init__(self, window: "GameWindow", paddle_left: "Paddle", paddle_right: "Paddle") -> None:
         self.window = window
-        self.player_left = player_1
-        self.player_right = player_2
+        self.paddle_left = paddle_left
+        self.paddle_right = paddle_right
         self.setup_labels()
 
     def setup_labels(self) -> None:
@@ -47,9 +47,9 @@ class GameUI:
 
         # Score labels
         y: int = self.game_state.y - VERTICAL_LABEL_MARGIN - FONT_SIZE // 2
-        self.score_left = Text(str(self.player_left.score),
+        self.score_left = Text(str(self.paddle_left.score),
                              center_x - score_x_offset, y, FONT_SIZE)
-        self.score_right = Text(str(self.player_right.score),
+        self.score_right = Text(str(self.paddle_right.score),
                              center_x + score_x_offset, y, FONT_SIZE)
 
         # Port labels
@@ -62,30 +62,30 @@ class GameUI:
         )
 
     def update(self, delta_time: float) -> None:
-        self.score_left.text = str(self.player_left.score)
-        self.score_right.text = str(self.player_right.score)
-        self.conn_info_right.text = self.get_conn_info_text(self.player_right)
-        self.conn_info_left.text = self.get_conn_info_text(self.player_left)
+        self.score_left.text = str(self.paddle_left.score)
+        self.score_right.text = str(self.paddle_right.score)
+        self.conn_info_right.text = self.get_conn_info_text(self.paddle_right)
+        self.conn_info_left.text = self.get_conn_info_text(self.paddle_left)
         self.game_state.text = self.get_status_text()
                 
-    def get_conn_info_text(self, player: "Paddle") -> str:
-        if player.is_connected():
-            return f"{player._port} (Connected)"
+    def get_conn_info_text(self, paddle: "Paddle") -> str:
+        if paddle.is_connected():
+            return f"{paddle.player_id} (Connected)"
         else:
-            return f"{player._port} (NPC)"
+            return f"{paddle.player_id} (NPC)"
     
     def get_status_text(self) -> str:
-        if not(self.player_left.is_connected() or self.player_right.is_connected()):
+        if not(self.paddle_left.is_connected() or self.paddle_right.is_connected()):
             self.game_state.color = (255, 220, 5, 200)
             return "Use the DIPPID app to connect to the ports below!"
         elif self.window.game_manager.state == GameState.INACTIVE or self.window.game_manager.state == GameState.WAITING:
             self.game_state.color = (100, 255, 100, 200)
-            num_connected_players = len([p for p in [self.player_left, self.player_right] if p.is_connected()])
-            num_ready_players = len([p for p in [self.player_left, self.player_right] if p.is_ready() and p.is_connected()])
+            num_connected_players = len([p for p in [self.paddle_left, self.paddle_right] if p.is_connected()])
+            num_ready_players = len([p for p in [self.paddle_left, self.paddle_right] if p.is_ready() and p.is_connected()])
             return f"Press button_1 to ready up! ({num_ready_players}/{num_connected_players})"
         elif self.window.game_manager.state == GameState.RESETTING:
             self.game_state.color = (100, 255, 100, 200)
-            return f"{self.window.game_manager.last_scorer._port} scored!"
+            return f"{self.window.game_manager.last_scorer.player_id} scored!"
         else:
             self.game_state.color = (255, 255, 255, 120)
             return "Score"

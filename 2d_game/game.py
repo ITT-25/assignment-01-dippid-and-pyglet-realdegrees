@@ -13,7 +13,7 @@ class GameWindow(window.Window):
         self.set_caption("DIPPID Pong")
         self.set_visible(True)
         self.game_manager = GameManager(self)
-        self.ui = GameUI(self, self.game_manager.player_1, self.game_manager.player_2)
+        self.ui = GameUI(self, self.game_manager.paddle_left, self.game_manager.paddle_right)
 
     def on_update(self, delta_time):
         self.game_manager.update(delta_time)
