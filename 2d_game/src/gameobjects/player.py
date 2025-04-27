@@ -65,7 +65,7 @@ class Player(SensorUDP):
         
 
         # Adjust speed multiplier based on ball direction relative to paddle
-        speed_factor = (0.5 + (1 - distance_x / self.window.width) )if is_moving_towards_paddle else 0.2
+        speed_factor = (0.35 + (1 - distance_x / self.window.width))if is_moving_towards_paddle else 0.2
 
         # Calculate and apply final velocity to paddle
         delta_y = max(min(ball_center.y - paddle_center.y, 9.81), -9.81)
