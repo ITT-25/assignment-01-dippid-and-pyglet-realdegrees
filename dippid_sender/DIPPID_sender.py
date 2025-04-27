@@ -12,7 +12,7 @@ import random
 
 
 DEFAULT_PORT = 5700
-DEFAULT_IP = '127.0.0.1'
+DEFAULT_IP = "127.0.0.1"
 DEFAULT_INTERVAL = 50
 
 
@@ -47,27 +47,37 @@ MockData = Dict[str, Dict[str, float] | float]
 def evaluate_expr(math_expr: str, t: float) -> float:
     """Evaluates a math expression with the given time value. Supports basic math functions."""
     functions = {
-        'sin': lambda n: 0.5*(1+math.sin(2*math.pi*n)),
-        'cos': lambda n: 0.5*(1+math.cos(2*math.pi*n)),
-        'tan': lambda n: 0.5*(1+math.tan(2*math.pi*n)),
-        'sqrt': math.sqrt,
-        'log': math.log,
-        'exp': math.exp,
-        'abs': abs,
-        'pow': math.pow,
-        'random': lambda: random.random()
+        "sin": lambda n: 0.5 * (1 + math.sin(2 * math.pi * n)),
+        "cos": lambda n: 0.5 * (1 + math.cos(2 * math.pi * n)),
+        "tan": lambda n: 0.5 * (1 + math.tan(2 * math.pi * n)),
+        "sqrt": math.sqrt,
+        "log": math.log,
+        "exp": math.exp,
+        "abs": abs,
+        "pow": math.pow,
+        "random": lambda: random.random(),
     }
     try:
-        return simple_eval(math_expr, functions=functions, names={'t': t})
+        return simple_eval(math_expr, functions=functions, names={"t": t})
     except Exception:
         print(f"Unable to evaluate '{math_expr}'")
         return 0.0
 
 
 @click.command()
-@click.option('--config', '-c', required=True, help='JSON string or path/to/file.json', type=str)
-@click.option('--verbose', '-v', required=False, is_flag=True, help='Enable to print messages')
-@click.option('--truncate', '-t', required=False, help='Truncate values to this many decimal places', type=int)
+@click.option(
+    "--config", "-c", required=True, help="JSON string or path/to/file.json", type=str
+)
+@click.option(
+    "--verbose", "-v", required=False, is_flag=True, help="Enable to print messages"
+)
+@click.option(
+    "--truncate",
+    "-t",
+    required=False,
+    help="Truncate values to this many decimal places",
+    type=int,
+)
 def run(config: str, verbose: bool, truncate: Optional[int]):
     # Attempt to load the config from a JSON string or file, exit if it fails
     cfg: Config = {}
@@ -81,14 +91,15 @@ def run(config: str, verbose: bool, truncate: Optional[int]):
             raise FileNotFoundError(f"File not found: {config}")
 
     # Retrieve config values with defaults
-    ip = cfg.get('ip', DEFAULT_IP)
-    port = cfg.get('port', DEFAULT_PORT)
-    interval = cfg.get('interval', DEFAULT_INTERVAL)
-    mocks = cfg.get('mocks', {})
+    ip = cfg.get("ip", DEFAULT_IP)
+    port = cfg.get("port", DEFAULT_PORT)
+    interval = cfg.get("interval", DEFAULT_INTERVAL)
+    mocks = cfg.get("mocks", {})
 
     if verbose:
         print(
-            f"Sending to {ip}:{port} every {interval}ms\nConfig:\n{json.dumps(mocks, indent=2)}")
+            f"Sending to {ip}:{port} every {interval}ms\nConfig:\n{json.dumps(mocks, indent=2)}"
+        )
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     start = time.time()
@@ -108,11 +119,21 @@ def run(config: str, verbose: bool, truncate: Optional[int]):
         # Send the data
         msg = json.dumps(data)
         if verbose:
-            print(f'\nMockData at {f"{t//3600:02.0f}:{t%3600//60:02.0f}:{t%60:06.3f}"}\n', json.dumps(data, indent=4))
+            print(
+                f"\nMockData at {f'{t // 3600:02.0f}:{t % 3600 // 60:02.0f}:{t % 60:06.3f}'}\n",
+                json.dumps(data, indent=4),
+            )
         sock.sendto(msg.encode(), (ip, port))
         time.sleep(interval / 1000)
 
-def build_capability(capability: str, value: str | Dict[str, str], t: float, truncate: Optional[int], buttons: Dict[str, ButtonState]) -> Dict[str, float]:
+
+def build_capability(
+    capability: str,
+    value: str | Dict[str, str],
+    t: float,
+    truncate: Optional[int],
+    buttons: Dict[str, ButtonState],
+) -> Dict[str, float]:
     """Builds a capability from the given value. If the value is a string, it is treated as a single value capability with no subkeys."""
 
     # Wrap the value in a dict with None key if it's a string
@@ -123,14 +144,14 @@ def build_capability(capability: str, value: str | Dict[str, str], t: float, tru
     sub: Dict[str, float] = {}
     for key, expr in value.items():
         if not isinstance(expr, str):
-            raise ValueError(
-                f"Value for '{capability}.{key}' is not a string: {expr}")
+            raise ValueError(f"Value for '{capability}.{key}' is not a string: {expr}")
 
-        if expr.startswith('button:'):
+        if expr.startswith("button:"):
             # Create or get the existing button state
-            button_name = (capability + '.' + key) if key else capability
+            button_name = (capability + "." + key) if key else capability
             button = buttons.get(button_name, None) or ButtonState(
-                button_name, expr.split(':', 1)[1])
+                button_name, expr.split(":", 1)[1]
+            )
 
             if button_name not in buttons:
                 buttons[button_name] = button

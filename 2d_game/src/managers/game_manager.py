@@ -11,32 +11,58 @@ if TYPE_CHECKING:
     from game import GameWindow
 
 
-class GameManager():
+class GameManager:
     """GameManager is responsible for managing the game state and updating game objects."""
 
     def __init__(self, window: "GameWindow"):
         self.window = window
 
         # Init Ball
-        self.ball = Ball(self.window.width / 2,
-                         self.window.height / 2, 12, window)
+        self.ball = Ball(self.window.width / 2, self.window.height / 2, 12, window)
 
         # Init Paddles
-        self.paddle_left = Paddle(50, self.window.height / 2 - PADDLE_DIMENSIONS.y / 2,
-                                  PLAYER_1_PORT, window, self.ball)
-        self.paddle_right = Paddle(self.window.width - 50 - PADDLE_DIMENSIONS.x, self.window.height / 2 - PADDLE_DIMENSIONS.y / 2,
-                                   PLAYER_2_PORT, window, self.ball)
+        self.paddle_left = Paddle(
+            50,
+            self.window.height / 2 - PADDLE_DIMENSIONS.y / 2,
+            PLAYER_1_PORT,
+            window,
+            self.ball,
+        )
+        self.paddle_right = Paddle(
+            self.window.width - 50 - PADDLE_DIMENSIONS.x,
+            self.window.height / 2 - PADDLE_DIMENSIONS.y / 2,
+            PLAYER_2_PORT,
+            window,
+            self.ball,
+        )
 
         # Init Borders
         self.border_bottom = Border(
-            0, -self.window.height, self.window.width, self.window.height, window, direction=BorderDirection.UP)
+            0,
+            -self.window.height,
+            self.window.width,
+            self.window.height,
+            window,
+            direction=BorderDirection.UP,
+        )
         self.border_top = Border(
-            0, self.window.height, self.window.width, self.window.height, window, direction=BorderDirection.DOWN)
+            0,
+            self.window.height,
+            self.window.width,
+            self.window.height,
+            window,
+            direction=BorderDirection.DOWN,
+        )
 
         # Init collision manager with all game objects
         self.collision_manager = CollisionManager(window)
         self.collision_manager.add(
-            self.ball, self.paddle_left, self.paddle_right, self.border_top, self.border_bottom)
+            self.ball,
+            self.paddle_left,
+            self.paddle_right,
+            self.border_top,
+            self.border_bottom,
+        )
 
         self.state = GameState.INACTIVE
         self.reset_timer = 0
@@ -71,9 +97,10 @@ class GameManager():
         elif self.state == GameState.WAITING:
             # Wait for button_1 from either player
             if self.paddle_left.is_ready() and self.paddle_right.is_ready():
-                self.ball.set_velocity((
-                    self.paddle_left.get_center() - self.ball.get_center()
-                ).normalize() * INITIAL_BALL_SPEED)
+                self.ball.set_velocity(
+                    (self.paddle_left.get_center() - self.ball.get_center()).normalize()
+                    * INITIAL_BALL_SPEED
+                )
                 self.state = GameState.PLAYING
 
         elif self.state == GameState.PLAYING:

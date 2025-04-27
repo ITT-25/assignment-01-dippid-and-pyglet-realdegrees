@@ -2,6 +2,7 @@ from __future__ import annotations
 from pyglet.graphics import Batch
 from enum import Enum, auto
 
+
 class GameState(Enum):
     INACTIVE = auto()
     WAITING = auto()
@@ -12,15 +13,16 @@ class GameState(Enum):
 gameobject_batch = Batch()
 ui_batch = Batch()
 
+
 class Vector2D:
     def __init__(self, x: float, y: float):
         self.x = x
         self.y = y
-        
+
     def length(self) -> float:
         """Calculate the length of the vector."""
-        return (self.x ** 2 + self.y ** 2) ** 0.5
-    
+        return (self.x**2 + self.y**2) ** 0.5
+
     def normalize(self) -> Vector2D:
         """Normalize the vector to a length of 1."""
         length = self.length()
@@ -32,17 +34,13 @@ class Vector2D:
         """Reflect the vector on a normal vector."""
         dot_product = self.x * normal.x + self.y * normal.y
         return Vector2D(
-            self.x - 2 * dot_product * normal.x,
-            self.y - 2 * dot_product * normal.y
+            self.x - 2 * dot_product * normal.x, self.y - 2 * dot_product * normal.y
         )
-        
+
     @staticmethod
     def lerp(a: Vector2D, b: Vector2D, t: float) -> Vector2D:
         """Linearly interpolate between two vectors."""
-        return Vector2D(
-            a.x + (b.x - a.x) * t,
-            a.y + (b.y - a.y) * t
-        )
+        return Vector2D(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)
 
     def __add__(self, other: Vector2D):
         return Vector2D(self.x + other.x, self.y + other.y)
