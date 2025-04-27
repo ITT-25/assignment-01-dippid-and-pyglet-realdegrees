@@ -43,8 +43,8 @@ class GameManager():
             self.ball, self.paddle_left, self.paddle_right, self.border_top, self.border_bottom)
 
         # Init player instances/sensors
-        self.player_1 = Player(self.paddle_left, self.ball)
-        self.player_2 = Player(self.paddle_right, self.ball)
+        self.player_1 = Player(self.paddle_left, self.ball, self.window)
+        self.player_2 = Player(self.paddle_right, self.ball, self.window)
 
         self.state = GameState.INACTIVE
         self.reset_timer = 0
