@@ -23,13 +23,40 @@ class Ball(GameObject):
 
     def on_collision_start(self, other: 'GameObject'):
         if isinstance(other, Paddle):
-            # Calculate the new velocity from the center of the paddle to the center of the ball
-            bounce_direction = self.get_center() - other.get_center()
-            self.velocity = Vector2D.lerp(
-                -self.velocity.normalize(), 
-                bounce_direction.normalize(), 
-            0.8).normalize() * self.velocity.length() * random.uniform(1.05, 1.15)
+            # ! Original Bounce Logic Code
+            
+            # bounce_direction = self.get_center() - other.get_center()
+            # self.velocity = Vector2D.lerp(
+            #     -self.velocity.normalize(), 
+            #     bounce_direction.normalize(), 
+            # 0.8).normalize() * self.velocity.length() * random.uniform(1.05, 1.15)
+            # self.play_bounce_sound()
+            
+            #region Bounce Logic
+            # ? Source: Copilot prompt based on original code above: "adjust the bounce direction logic in #file:ball.py so that it feels more like the original pong mechanics"
+            # ? Generated code is slightly modified
+            
+            # Classic Pong bounce: angle depends on where the ball hits the paddle
+            ball_center = self.get_center()
+            paddle_center = other.get_center()
+            paddle_height = other.shape.height
+            # Offset: -1 (top edge) to 1 (bottom edge)
+            offset = (ball_center.y - paddle_center.y) / (paddle_height / 2)
+            offset = max(-1, min(1, offset))  # Clamp to [-1, 1]
+
+            # Determine direction: left or right depending on which side the paddle is
+            direction = -1 if self.velocity.x > 0 else 1
+            speed = self.velocity.length() * random.uniform(1.05, 1.15)
+            max_bounce_angle = 60  # degrees
+            angle = offset * max_bounce_angle
+            import math
+            rad = math.radians(angle)
+            new_vx = direction * abs(math.cos(rad)) * speed
+            new_vy = math.sin(rad) * speed
+            self.velocity = Vector2D(new_vx, new_vy)
             self.play_bounce_sound()
+            #endregion
+            
         elif isinstance(other, Border):
             # Reflect the ball's velocity based on the border normal
             self.velocity = self.velocity.reflect(other.normal())
