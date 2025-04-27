@@ -3,9 +3,9 @@ import sys
 import pyglet
 from pyglet import window, clock
 from config import WINDOW_WIDTH, WINDOW_HEIGHT
-from util import gameobject_batch, ui_batch
-from src.game_manager import GameManager
-from src.ui import GameUI
+from src.util import gameobject_batch, ui_batch
+from src.managers.game_manager import GameManager
+from src.managers.ui import GameUI
 
 class GameWindow(window.Window):
     def __init__(self):

@@ -1,4 +1,4 @@
-from util import Vector2D   
+from src.util import Vector2D   
 
 PLAYER_1_PORT = 5700
 PLAYER_2_PORT = 5701

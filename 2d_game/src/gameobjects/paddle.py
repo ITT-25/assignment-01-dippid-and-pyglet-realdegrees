@@ -1,8 +1,8 @@
 import math
 from typing import TYPE_CHECKING
 from pyglet import shapes
-from util import gameobject_batch, Vector2D
-from .game_object import GameObject
+from src.util import gameobject_batch, Vector2D
+from src.gameobjects.gameobject import GameObject
 
 if TYPE_CHECKING:
     from game import GameWindow

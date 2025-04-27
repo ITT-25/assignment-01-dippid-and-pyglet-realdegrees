@@ -1,7 +1,7 @@
 from enum import Enum
-from util import gameobject_batch, Vector2D
+from src.util import gameobject_batch, Vector2D
 import pyglet
-from .game_object import GameObject
+from src.gameobjects.gameobject import GameObject
 
 class BorderDirection(Enum):
     UP = 1

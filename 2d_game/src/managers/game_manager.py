@@ -2,13 +2,13 @@
 from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
-from src.paddle import Paddle
-from src.ball import Ball
-from src.border import Border, BorderDirection
-from src.player import Player
-from src.collision_manager import CollisionManager
+from src.gameobjects.paddle import Paddle
+from src.gameobjects.ball import Ball
+from src.gameobjects.border import Border, BorderDirection
+from src.gameobjects.player import Player
+from src.managers.collision_manager import CollisionManager
 from config import INITIAL_BALL_SPEED, PADDLE_DIMENSIONS, PLAYER_1_PORT, PLAYER_2_PORT, WINDOW_HEIGHT
-from util import GameState, Vector2D
+from src.util import GameState, Vector2D
 
 if TYPE_CHECKING:
     from game import GameWindow

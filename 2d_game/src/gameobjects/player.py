@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 from DIPPID import SensorUDP
 from config import INITIAL_BALL_SPEED
 
-from util import Vector2D
+from src.util import Vector2D
 import time
 
 if TYPE_CHECKING:
     from game import GameWindow
-    from src.ball import Ball
-    from src.paddle import Paddle
+    from src.gameobjects.ball import Ball
+    from src.gameobjects.paddle import Paddle
 
 
 class Player(SensorUDP):

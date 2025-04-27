@@ -2,10 +2,10 @@ import os
 import random
 from typing import Optional
 import pyglet
-from src.border import Border
-from src.paddle import Paddle
-from util import Vector2D, gameobject_batch
-from .game_object import GameObject
+from src.gameobjects.border import Border
+from src.gameobjects.paddle import Paddle
+from src.util import Vector2D, gameobject_batch
+from .gameobject import GameObject
 
 
 class Ball(GameObject):
@@ -13,7 +13,7 @@ class Ball(GameObject):
         super().__init__(pyglet.shapes.RoundedRectangle(
             x, y, width=radius * 2, height=radius * 2, radius=radius, color=(255, 255, 255), batch=gameobject_batch), window)
         self.audio = pyglet.media.load(os.path.abspath(
-            os.path.dirname(__file__) + '/../assets/bounce.wav'), streaming=False)
+            os.path.dirname(__file__) + '/../../assets/bounce.wav'), streaming=False)
         self.player: Optional[pyglet.media.Player] = None
 
     def play_bounce_sound(self):

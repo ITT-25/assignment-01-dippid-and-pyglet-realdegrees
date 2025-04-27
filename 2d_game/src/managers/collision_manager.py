@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, List
-from src.game_object import GameObject
+from src.gameobjects.gameobject import GameObject
 
 if TYPE_CHECKING:
     from game import GameWindow

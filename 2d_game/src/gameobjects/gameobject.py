@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import abstractmethod
 from pyglet import shapes
-from util import Vector2D
+from src.util import Vector2D
 
 class GameObject():
     visible: bool = True

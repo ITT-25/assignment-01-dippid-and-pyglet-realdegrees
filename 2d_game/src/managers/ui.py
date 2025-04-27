@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional, Tuple
 from config import (
     PLAYER_1_PORT, PLAYER_2_PORT, FONT_SIZE, VERTICAL_LABEL_MARGIN
 )
-from util import GameState, ui_batch
+from src.util import GameState, ui_batch
 
 if TYPE_CHECKING:
     from game import GameWindow
