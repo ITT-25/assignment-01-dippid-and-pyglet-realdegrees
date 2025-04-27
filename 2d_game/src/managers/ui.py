@@ -7,8 +7,7 @@ from src.util import GameState, ui_batch
 
 if TYPE_CHECKING:
     from game import GameWindow
-    from player import Player
-
+    from src.gameobjects.paddle import Paddle
 
 class Text(pyglet.text.Label):
     def __init__(self, text: str, x: int, y: int, font_size: int, color: Optional[Tuple[int, int, int, int]] = (255, 255, 255, 255)) -> None:
@@ -29,7 +28,7 @@ class GameUI:
     conn_info_left: pyglet.text.Label
     conn_info_right: pyglet.text.Label
 
-    def __init__(self, window: "GameWindow", player_1: "Player", player_2: "Player") -> None:
+    def __init__(self, window: "GameWindow", player_1: "Paddle", player_2: "Paddle") -> None:
         self.window = window
         self.player_left = player_1
         self.player_right = player_2
@@ -69,7 +68,7 @@ class GameUI:
         self.conn_info_left.text = self.get_conn_info_text(self.player_left)
         self.game_state.text = self.get_status_text()
                 
-    def get_conn_info_text(self, player: "Player") -> str:
+    def get_conn_info_text(self, player: "Paddle") -> str:
         if player.is_connected():
             return f"{player._port} (Connected)"
         else:

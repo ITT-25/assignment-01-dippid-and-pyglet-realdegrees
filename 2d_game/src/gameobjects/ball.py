@@ -23,6 +23,9 @@ class Ball(GameObject):
 
     def on_collision_start(self, other: 'GameObject'):
         if isinstance(other, Paddle):
+            # Update NPC offset for the paddle
+            other.update_npc_offset()
+
             # ! Original Bounce Logic Code
             
             # bounce_direction = self.get_center() - other.get_center()
@@ -56,7 +59,6 @@ class Ball(GameObject):
             self.velocity = Vector2D(new_vx, new_vy)
             self.play_bounce_sound()
             #endregion
-            
         elif isinstance(other, Border):
             # Reflect the ball's velocity based on the border normal
             self.velocity = self.velocity.reflect(other.normal())

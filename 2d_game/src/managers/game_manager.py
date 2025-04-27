@@ -1,11 +1,9 @@
-
 from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 from src.gameobjects.paddle import Paddle
 from src.gameobjects.ball import Ball
 from src.gameobjects.border import Border, BorderDirection
-from src.gameobjects.player import Player
 from src.managers.collision_manager import CollisionManager
 from config import INITIAL_BALL_SPEED, PADDLE_DIMENSIONS, PLAYER_1_PORT, PLAYER_2_PORT, WINDOW_HEIGHT
 from src.util import GameState, Vector2D
@@ -29,9 +27,9 @@ class GameManager():
             random.uniform(-WINDOW_HEIGHT / 5, WINDOW_HEIGHT / 5)
         y_right = self.window.height / 2 - PADDLE_DIMENSIONS.y / \
             2 + random.uniform(-WINDOW_HEIGHT / 5, WINDOW_HEIGHT / 5)
-        self.paddle_left = Paddle(50, y_left, PLAYER_1_PORT, window)
+        self.paddle_left = Paddle(50, y_left, PLAYER_1_PORT, window, self.ball)
         self.paddle_right = Paddle(
-            self.window.width - 50 - PADDLE_DIMENSIONS.x, y_right, PLAYER_2_PORT, window)
+            self.window.width - 50 - PADDLE_DIMENSIONS.x, y_right, PLAYER_2_PORT, window, self.ball)
 
         # Init Borders
         self.border_bottom = Border(
@@ -44,9 +42,9 @@ class GameManager():
         self.collision_manager.add(
             self.ball, self.paddle_left, self.paddle_right, self.border_top, self.border_bottom)
 
-        # Init player instances/sensors
-        self.player_1 = Player(self.paddle_left, self.ball, self.window)
-        self.player_2 = Player(self.paddle_right, self.ball, self.window)
+        # Init player instances/sensors (now paddles)
+        self.player_1 = self.paddle_left
+        self.player_2 = self.paddle_right
 
         self.state = GameState.INACTIVE
         self.reset_timer = 0
