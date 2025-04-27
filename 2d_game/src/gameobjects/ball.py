@@ -1,12 +1,13 @@
 import os
 import random
+import math
 from typing import Optional
 import pyglet
 from src.gameobjects.border import Border
 from src.gameobjects.paddle import Paddle
 from src.util import Vector2D, gameobject_batch
-from .gameobject import GameObject
-
+from src.gameobjects.gameobject import GameObject
+from config import INITIAL_BALL_SPEED
 
 class Ball(GameObject):
     def __init__(self, x, y, radius, window):
@@ -37,7 +38,7 @@ class Ball(GameObject):
             
             #region Bounce Logic
             # ? Source: Copilot prompt based on original code above: "adjust the bounce direction logic in #file:ball.py so that it feels more like the original pong mechanics"
-            # ? Generated code is slightly modified
+            # ? Generated code is slightly modified (Original commit 1140c9a95a4b760dc5d21cf3124b8a7cab888ad1)
             
             # Classic Pong bounce: angle depends on where the ball hits the paddle
             ball_center = self.get_center()
@@ -49,10 +50,13 @@ class Ball(GameObject):
 
             # Determine direction: left or right depending on which side the paddle is
             direction = -1 if self.velocity.x > 0 else 1
-            speed = self.velocity.length() * random.uniform(1.05, 1.15)
-            max_bounce_angle = 60  # degrees
+            
+            # Randomly increase the speed by 5-10% of the initial speed
+            speed = self.velocity.length() + random.uniform(INITIAL_BALL_SPEED * 0.05, INITIAL_BALL_SPEED * 0.10)
+            
+            # Calulcate angle and apply velocity
+            max_bounce_angle = 60
             angle = offset * max_bounce_angle
-            import math
             rad = math.radians(angle)
             new_vx = direction * abs(math.cos(rad)) * speed
             new_vy = math.sin(rad) * speed

@@ -53,6 +53,7 @@ class Paddle(GameObject, SensorUDP):
             self.shape.y = 0
         elif self.shape.y + self.shape.height > self.window.height:
             self.shape.y = self.window.height - self.shape.height
+            
         if not self.is_connected():
             self.npc_takeover()
 
