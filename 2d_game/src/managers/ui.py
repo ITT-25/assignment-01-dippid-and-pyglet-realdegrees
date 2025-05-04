@@ -2,10 +2,10 @@ import pyglet
 from typing import TYPE_CHECKING, Optional, Tuple
 from config import PLAYER_1_PORT, PLAYER_2_PORT, FONT_SIZE, VERTICAL_LABEL_MARGIN
 from src.util import GameState, ui_batch
+from src.scripts.paddle import Paddle
 
 if TYPE_CHECKING:
     from game import GameWindow
-    from src.gameobjects.paddle import Paddle
 
 
 class Text(pyglet.text.Label):
@@ -37,11 +37,15 @@ class GameUI:
     conn_info_right: pyglet.text.Label
 
     def __init__(
-        self, window: "GameWindow", paddle_left: "Paddle", paddle_right: "Paddle"
+        self, window: "GameWindow"
     ) -> None:
         self.window = window
-        self.paddle_left = paddle_left
-        self.paddle_right = paddle_right
+        self.paddle_left: Paddle = window.game_manager.find("Paddle Left").get_script(Paddle) if window.game_manager.find("Paddle Left") else None
+        self.paddle_right: Paddle = window.game_manager.find("Paddle Right").get_script(Paddle) if window.game_manager.find("Paddle Right") else None
+        
+        if self.paddle_left is None or self.paddle_right is None:
+            raise ValueError("Paddles not found in the game manager.")
+        
         self.setup_labels()
 
     def setup_labels(self) -> None:

@@ -1,27 +1,29 @@
 from typing import TYPE_CHECKING, List
-from src.gameobjects.gameobject import GameObject
+from src.gameobject import GameObject
 
 if TYPE_CHECKING:
     from game import GameWindow
+    from src.managers.game_manager import GameManager
 
 
 class CollisionManager:
-    def __init__(self, window: "GameWindow"):
-        self.window = window
-        self.objects: List[GameObject] = []
+    def __init__(self, window: "GameWindow", game_manager: "GameManager"):
         self.collisions: List[tuple[GameObject, GameObject]] = []
-
-    def add(self, *objs: GameObject):
-        self.objects.extend(objs)
+        self.window = window
+        self.game_manager = game_manager
 
     def update(self, delta_time: float):
-        for i in range(len(self.objects)):
-            out_of_bounds = self.check_out_of_bounds(self.objects[i])
-            self.objects[i].visible = not out_of_bounds
+        objects = self.game_manager.gameobjects
+        for i in range(len(objects)):
+            if not objects[i].collision:
+                continue
+            
+            out_of_bounds = self.check_out_of_bounds(objects[i])
+            objects[i].visible = not out_of_bounds
 
-            for j in range(i + 1, len(self.objects)):
-                obj1 = self.objects[i]
-                obj2 = self.objects[j]
+            for j in range(i + 1, len(objects)):
+                obj1 = objects[i]
+                obj2 = objects[j]
                 is_colliding = self.check_collision(obj1, obj2)
                 was_colliding = self.collisions.count((obj1, obj2)) > 0
                 if is_colliding and not was_colliding:
@@ -70,10 +72,10 @@ class CollisionManager:
                     return True
         return False
 
-    def check_out_of_bounds(self, obj: GameObject) -> bool:
+    def check_out_of_bounds(self, obj: GameObject) -> bool:        
         return (
             obj.shape.x + obj.shape.width < 0
-            or obj.shape.x > self.window.width
+            or obj.shape.x > self.game_manager.window.width
             or obj.shape.y + obj.shape.height < 0
-            or obj.shape.y > self.window.height
+            or obj.shape.y > self.game_manager.window.height
         )
