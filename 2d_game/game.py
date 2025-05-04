@@ -9,7 +9,6 @@ from src.util import gameobject_batch, ui_batch
 
 
 class GameWindow(window.Window):
-
     def __init__(self):
         super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT)
         self._default_vertex_source
@@ -46,5 +45,5 @@ class GameWindow(window.Window):
 
 if __name__ == "__main__":
     win = GameWindow()
-    pyglet.clock.schedule_interval(win.on_update, 1/60.0)
+    pyglet.clock.schedule_interval(win.on_update, 1 / 60.0)
     pyglet.app.run()

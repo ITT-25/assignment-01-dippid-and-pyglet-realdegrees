@@ -48,7 +48,9 @@ class Paddle(Script):
             self.gameobject.shape.x = self.window.width - self.gameobject.shape.width
         if self.gameobject.shape.y < 0:
             self.gameobject.shape.y = 0
-        elif self.gameobject.shape.y + self.gameobject.shape.height > self.window.height:
+        elif (
+            self.gameobject.shape.y + self.gameobject.shape.height > self.window.height
+        ):
             self.gameobject.shape.y = self.window.height - self.gameobject.shape.height
         if not self.is_connected():
             self.npc_takeover()
@@ -64,10 +66,12 @@ class Paddle(Script):
         )
 
     def npc_takeover(self):
-        ball = self.gameobject.gm.find("Ball") if self.gameobject.gm.find("Ball") else None
+        ball = (
+            self.gameobject.gm.find("Ball") if self.gameobject.gm.find("Ball") else None
+        )
         if not ball:
             return
-        
+
         ball_center = ball.get_center()
         paddle_center = self.gameobject.get_center()
         target_y = paddle_center.y + self.npc_offset_y

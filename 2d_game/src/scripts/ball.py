@@ -12,6 +12,7 @@ from src.scripts.paddle import Paddle
 if TYPE_CHECKING:
     from src.gameobject import GameObject
 
+
 class Ball(Script):
     def __init__(self, gameobject):
         super().__init__()
@@ -21,17 +22,19 @@ class Ball(Script):
             streaming=False,
         )
         self.player = None
-        
+
     def play_bounce_sound(self):
         self.player = self.audio.play()
         self.player.pitch = random.uniform(0.8, 1.2)
         self.player.volume = 0.3
-        
+
     def on_collision_start(self, other: "GameObject"):
         if other.tag == "border":
             border = other.get_script(Border)
             if border:
-                self.gameobject.velocity = self.gameobject.velocity.reflect(border.normal())
+                self.gameobject.velocity = self.gameobject.velocity.reflect(
+                    border.normal()
+                )
             self.play_bounce_sound()
         elif other.tag == "paddle":
             paddle = other.get_script(Paddle)
@@ -53,7 +56,6 @@ class Ball(Script):
             self.gameobject.velocity = Vector2D(new_vx, new_vy)
             self.play_bounce_sound()
 
-            
     def reset(self, x, y):
         self.gameobject.shape.x = x - self.gameobject.shape.width / 2
         self.gameobject.shape.y = y - self.gameobject.shape.height / 2

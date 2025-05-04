@@ -10,10 +10,18 @@ if TYPE_CHECKING:
 
 T = TypeVar("T", bound="Script")
 
+
 class GameObject:
     visible: bool = True
 
-    def __init__(self, gm: "GameManager", shape: shapes.RoundedRectangle, name: str = "", tag: str = "", collision: bool = True):
+    def __init__(
+        self,
+        gm: "GameManager",
+        shape: shapes.RoundedRectangle,
+        name: str = "",
+        tag: str = "",
+        collision: bool = True,
+    ):
         self.velocity = Vector2D(0, 0)
         self.gm = gm
         self.shape = shape
@@ -27,10 +35,15 @@ class GameObject:
         gm.register_go(self)
 
     @staticmethod
-    def create(game_manager: "GameManager", shape, name: str = "", tag: str = "", collision: bool = True):
+    def create(
+        game_manager: "GameManager",
+        shape,
+        name: str = "",
+        tag: str = "",
+        collision: bool = True,
+    ):
         obj = GameObject(game_manager, shape, name, tag, collision)
         return obj
-    
 
     def get_script(self, script_type: Type[T]) -> Optional[T]:
         for script in self.scripts:

@@ -36,16 +36,22 @@ class GameUI:
     conn_info_left: pyglet.text.Label
     conn_info_right: pyglet.text.Label
 
-    def __init__(
-        self, window: "GameWindow"
-    ) -> None:
+    def __init__(self, window: "GameWindow") -> None:
         self.window = window
-        self.paddle_left: Paddle = window.game_manager.find("Paddle Left").get_script(Paddle) if window.game_manager.find("Paddle Left") else None
-        self.paddle_right: Paddle = window.game_manager.find("Paddle Right").get_script(Paddle) if window.game_manager.find("Paddle Right") else None
-        
+        self.paddle_left: Paddle = (
+            window.game_manager.find("Paddle Left").get_script(Paddle)
+            if window.game_manager.find("Paddle Left")
+            else None
+        )
+        self.paddle_right: Paddle = (
+            window.game_manager.find("Paddle Right").get_script(Paddle)
+            if window.game_manager.find("Paddle Right")
+            else None
+        )
+
         if self.paddle_left is None or self.paddle_right is None:
             raise ValueError("Paddles not found in the game manager.")
-        
+
         self.setup_labels()
 
     def setup_labels(self) -> None:
@@ -99,15 +105,15 @@ class GameUI:
 
     def get_status_text(self) -> str:
         gm = self.window.game_manager
-        
+
         if not (self.paddle_left.is_connected() or self.paddle_right.is_connected()):
             self.game_state.color = (255, 220, 5, 200)
             return "Use the DIPPID app to connect to the ports below!"
-        
+
         elif gm.state == GameState.GAME_OVER:
             self.game_state.color = (255, 100, 100, 255)
             return f"Player {gm.winner.player_id} wins! Press button_1 to restart."
-         
+
         elif gm.state == GameState.WAITING:
             self.game_state.color = (100, 255, 100, 200)
             num_connected_players = len(
