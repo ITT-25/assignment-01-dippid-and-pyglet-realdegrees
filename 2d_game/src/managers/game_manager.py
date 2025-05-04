@@ -2,7 +2,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, List, Literal, Type, TypeVar
 from src.gameobject import GameObject
-from config import INITIAL_BALL_SIZE, INITIAL_BALL_SPEED,  PLAYER_1_PORT, PLAYER_2_PORT, WIN_CONDITION
+from config import INITIAL_BALL_SIZE, INITIAL_BALL_SPEED, PADDLE_DIMENSIONS,  PLAYER_1_PORT, PLAYER_2_PORT, WIN_CONDITION
 from src.util import GameState, Vector2D
 from pyglet import shapes
 from src.scripts.ball import Ball
@@ -43,8 +43,8 @@ class GameManager:
         
         # Init Paddles
         def init_paddle(side: Literal["left", "right"]) -> GameObject:
-            width = 35
-            height = 250     
+            width = PADDLE_DIMENSIONS.x
+            height = PADDLE_DIMENSIONS.y     
             paddle_shape = shapes.RoundedRectangle(
                 20 if side == "left" else self.window.width - 20 - width,
                 self.window.height / 2 - height / 2,
