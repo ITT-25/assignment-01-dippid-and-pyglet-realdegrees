@@ -7,13 +7,12 @@ from src.managers.collision_manager import CollisionManager
 from src.managers.ui import GameUI
 from src.util import gameobject_batch, ui_batch
 
-# Global reference for GameWindow
-GAME_WINDOW = None
 
 class GameWindow(window.Window):
 
     def __init__(self):
         super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self._default_vertex_source
         self.set_caption("DIPPID Pong")
         self.set_visible(True)
         self.game_manager = GameManager(self)
