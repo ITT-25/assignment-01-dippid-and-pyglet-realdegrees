@@ -98,13 +98,17 @@ class GameUI:
             return f"{paddle.player_id} (NPC)"
 
     def get_status_text(self) -> str:
+        gm = self.window.game_manager
+        
         if not (self.paddle_left.is_connected() or self.paddle_right.is_connected()):
             self.game_state.color = (255, 220, 5, 200)
             return "Use the DIPPID app to connect to the ports below!"
-        elif (
-            self.window.game_manager.state == GameState.INACTIVE
-            or self.window.game_manager.state == GameState.WAITING
-        ):
+        
+        elif gm.state == GameState.GAME_OVER:
+            self.game_state.color = (255, 100, 100, 255)
+            return f"Player {gm.winner.player_id} wins! Press button_1 to restart."
+         
+        elif gm.state == GameState.WAITING:
             self.game_state.color = (100, 255, 100, 200)
             num_connected_players = len(
                 [p for p in [self.paddle_left, self.paddle_right] if p.is_connected()]
@@ -117,9 +121,9 @@ class GameUI:
                 ]
             )
             return f"Press button_1 to ready up! ({num_ready_players}/{num_connected_players})"
-        elif self.window.game_manager.state == GameState.RESETTING:
+        elif gm.state == GameState.RESETTING:
             self.game_state.color = (100, 255, 100, 200)
-            return f"{self.window.game_manager.last_scorer.player_id} scored!"
+            return f"{gm.last_scorer.player_id} scored!"
         else:
             self.game_state.color = (255, 255, 255, 120)
             return "Score"

@@ -8,6 +8,7 @@ class GameState(Enum):
     WAITING = auto()
     PLAYING = auto()
     RESETTING = auto()
+    GAME_OVER = auto()
 
 
 gameobject_batch = Batch()

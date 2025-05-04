@@ -15,10 +15,10 @@ class Paddle(Script):
     def __init__(self, gameobject: "GameObject", player_id):
         super().__init__()
         self.gameobject = gameobject
-        self.player_id = player_id
-        self.score = 0
-        self.npc_offset_y = 0
-        self.last_signal = None
+        self.player_id: int = player_id
+        self.score: int = 0
+        self.npc_offset_y: int = 0
+        self.last_signal: float = None
         self.sensor = SensorUDP(player_id)
         self.sensor.register_callback("gravity", self.on_input)
         self.window = gameobject.gm.window
@@ -28,9 +28,9 @@ class Paddle(Script):
         offset = random.uniform(-0.45, 0.45) * paddle_height
         self.npc_offset_y = offset
 
-    def on_input(self, gravity):
+    def on_input(self, gravity: dict):
         if "z" in gravity:
-            input = (
+            input: float = (
                 math.copysign(abs(gravity["z"] / 9.81) ** 1.5, gravity["z"])
                 * INITIAL_BALL_SPEED
                 * 1.35
@@ -38,7 +38,7 @@ class Paddle(Script):
             self.gameobject.set_velocity(Vector2D(0, input))
             self.last_signal = time.time()
 
-    def is_ready(self):
+    def is_ready(self) -> bool:
         return not self.is_connected() or self.sensor.get_value("button_1") == 1
 
     def update(self, delta_time):

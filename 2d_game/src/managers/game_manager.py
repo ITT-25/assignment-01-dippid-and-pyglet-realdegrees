@@ -2,7 +2,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, List, Literal, Type, TypeVar
 from src.gameobject import GameObject
-from config import INITIAL_BALL_SIZE, INITIAL_BALL_SPEED,  PLAYER_1_PORT, PLAYER_2_PORT
+from config import INITIAL_BALL_SIZE, INITIAL_BALL_SPEED,  PLAYER_1_PORT, PLAYER_2_PORT, WIN_CONDITION
 from src.util import GameState, Vector2D
 from pyglet import shapes
 from src.scripts.ball import Ball
@@ -26,6 +26,7 @@ class GameManager:
 
     def __init__(self, window: "GameWindow"):
         self.window = window
+        self.winner = None  # Track the winner for GAME_OVER state
         
         # Init Ball
         ball_shape = shapes.RoundedRectangle(
@@ -92,6 +93,11 @@ class GameManager:
         self.state = GameState.WAITING
         self.reset_timer = 0
         
+    def reset_scores(self):
+        paddles = self.find_by_script(Paddle)
+        for paddle in paddles:
+            paddle.get_script(Paddle).score = 0
+
     def find_by_tag(self, tag: str) -> list[GameObject]:
         """Find all GameObjects with the specified tag."""
         return [go for go in self.gameobjects if go.tag == tag]
@@ -129,15 +135,10 @@ class GameManager:
         if not ball or not paddle_left or not paddle_right:
             raise ValueError("GameManager is missing required game objects.")
         
-
-
-        # ! this is currently only a workaround to restrict npc movement during reset
-        # ! since player input is handled outside the update loop, they can still move during reset (intended behaviour but should be refactored to be more clear)
         # Only update paddles if the game is in PLAYING state
         if self.state == GameState.PLAYING:
             for go in [go for go in self.gameobjects if go.tag == "paddle"]:
                 go.update(delta_time)
-
 
         # State transitions
         if self.state == GameState.INACTIVE:
@@ -162,14 +163,31 @@ class GameManager:
                 else:
                     paddle_left.score += 1
                     self.last_scorer = paddle_left
-                self.state = GameState.RESETTING
-                self.reset_timer = 1.0
+                # Check for win condition
+                if paddle_left.score >= WIN_CONDITION:
+                    self.winner = paddle_left
+                    self.state = GameState.GAME_OVER
+                elif paddle_right.score >= WIN_CONDITION:
+                    self.winner = paddle_right
+                    self.state = GameState.GAME_OVER
+                else:
+                    self.state = GameState.RESETTING
+                    self.reset_timer = 1.0
 
         elif self.state == GameState.RESETTING:
             self.reset_timer -= delta_time
             paddle_left.gameobject.set_velocity(Vector2D(0, 0))
             paddle_right.gameobject.set_velocity(Vector2D(0, 0))
             if self.reset_timer <= 0:
+                self.reset()
+
+        elif self.state == GameState.GAME_OVER:
+            # Wait for both players to press button_1, then reset scores and game
+            if paddle_left.is_ready() and paddle_right.is_ready():
+                self.reset_scores()
+                self.winner = None
+                self.last_scorer = None
+                self.state = GameState.INACTIVE
                 self.reset()
 
     def exit(self):
