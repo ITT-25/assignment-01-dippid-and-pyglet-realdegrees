@@ -2,7 +2,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, List, Literal, Type, TypeVar
 from src.gameobject import GameObject
-from config import INITIAL_BALL_SIZE, INITIAL_BALL_SPEED, PADDLE_DIMENSIONS,  PLAYER_1_PORT, PLAYER_2_PORT, WIN_CONDITION
+from config import INITIAL_BALL_SIZE, INITIAL_BALL_SPEED, PADDLE_DIMENSIONS,  PLAYER_1_PORT, PLAYER_2_PORT, RESET_DURATION, WIN_CONDITION
 from src.util import GameState, Vector2D
 from pyglet import shapes
 from src.scripts.ball import Ball
@@ -65,10 +65,10 @@ class GameManager:
         # Init Borders
         def init_border(side: Literal["top", "bottom"]) -> GameObject:
             width = self.window.width
-            height = 10
+            height = self.window.height
             border_shape = shapes.RoundedRectangle(
                 x=0,
-                y=self.window.height - height if side == "top" else 0,
+                y=self.window.height if side == "top" else 0 - height,
                 width=width,
                 height=height,
                 radius=math.pi,
@@ -172,7 +172,7 @@ class GameManager:
                     self.state = GameState.GAME_OVER
                 else:
                     self.state = GameState.RESETTING
-                    self.reset_timer = 1.0
+                    self.reset_timer = RESET_DURATION
 
         elif self.state == GameState.RESETTING:
             self.reset_timer -= delta_time
