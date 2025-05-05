@@ -27,16 +27,10 @@ class CollisionManager:
                 is_colliding = self.check_collision(obj1, obj2)
                 was_colliding = self.collisions.count((obj1, obj2)) > 0
                 if is_colliding and not was_colliding:
-                    print(
-                        f"Collision detected between {obj1.__class__.__name__} and {obj2.__class__.__name__}"
-                    )
                     obj1.on_collision_start(obj2)
                     obj2.on_collision_start(obj1)
                     self.collisions.append((obj1, obj2))
                 elif not is_colliding and was_colliding:
-                    print(
-                        f"Collision ended between {obj1.__class__.__name__} and {obj2.__class__.__name__}"
-                    )
                     obj1.on_collision_end(obj2)
                     obj2.on_collision_end(obj1)
                     self.collisions.remove((obj1, obj2))
