@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 from pyglet.graphics import Batch
 from enum import Enum, auto
 
@@ -36,6 +37,16 @@ class Vector2D:
         dot_product = self.x * normal.x + self.y * normal.y
         return Vector2D(
             self.x - 2 * dot_product * normal.x, self.y - 2 * dot_product * normal.y
+        )
+    
+    def rotate_angle(self, angle: float) -> Vector2D:
+        """Rotate the vector by a given angle in degrees."""
+        rad = angle * (3.141592653589793 / 180)
+        cos_angle = math.cos(rad)
+        sin_angle = math.sin(rad)
+        return Vector2D(
+            self.x * cos_angle - self.y * sin_angle,
+            self.x * sin_angle + self.y * cos_angle,
         )
 
     @staticmethod

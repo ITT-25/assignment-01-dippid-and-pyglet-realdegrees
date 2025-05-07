@@ -1,5 +1,6 @@
 from __future__ import annotations
 import math
+import random
 from typing import TYPE_CHECKING, List, Literal, Type, TypeVar
 from src.gameobject import GameObject
 from config import (
@@ -48,7 +49,8 @@ class GameManager:
             color=(255, 255, 255),
             batch=gameobject_batch,
         )
-        ball = GameObject.create(ball_shape, name="Ball", tag="ball", collision=True)
+        ball = GameObject.create(
+            ball_shape, name="Ball", tag="ball", collision=True)
         ball.register_script(Ball(ball))
 
         # Init Paddles
@@ -72,7 +74,8 @@ class GameManager:
                 collision=True,
             )
             paddle.register_script(
-                Paddle(paddle, PLAYER_1_PORT if side == "left" else PLAYER_2_PORT)
+                Paddle(paddle, PLAYER_1_PORT if side ==
+                       "left" else PLAYER_2_PORT)
             )
             return paddle
 
@@ -98,7 +101,8 @@ class GameManager:
                 tag="border",
                 collision=True,
             )
-            border.register_script(Border(border, direction=1 if side == "top" else 2))
+            border.register_script(
+                Border(border, direction=1 if side == "top" else 2))
             return border
 
         init_border("top")
@@ -164,13 +168,16 @@ class GameManager:
     def _handle_state(self, delta_time: float):
         """Handle the state transitions of the game."""
 
-        ball = self.find("Ball").get_script(Ball) if self.find("Ball") else None
+        ball = self.find("Ball").get_script(
+            Ball) if self.find("Ball") else None
         paddles = self.find_by_script(Paddle)
         paddle_left = next(
-            (p.get_script(Paddle) for p in paddles if p.name == "Paddle Left"), None
+            (p.get_script(Paddle)
+             for p in paddles if p.name == "Paddle Left"), None
         )
         paddle_right = next(
-            (p.get_script(Paddle) for p in paddles if p.name == "Paddle Right"), None
+            (p.get_script(Paddle)
+             for p in paddles if p.name == "Paddle Right"), None
         )
 
         if not ball or not paddle_left or not paddle_right:
@@ -201,12 +208,39 @@ class GameManager:
         elif self.state == GameState.PLAYING:
             # Check if ball is out of bounds on the x axis and set score/state accordingly
             if ball.gameobject.out_of_bounds_hor:
+                # Spawn confetti for scored point at ball position in the opposite direction of its velocity
+                for i in range(20):
+                    confetti = GameObject.create(
+                        shapes.Rectangle(
+                            ball.gameobject.shape.x,
+                            ball.gameobject.shape.y,
+                            width=3,
+                            height=3,
+                            color=(random.randint(50, 255), random.randint(
+                                50, 255), random.randint(50, 255), random.randint(150, 255)),
+                            batch=gameobject_batch,
+                        ),
+                        name="Confetti",
+                        tag="confetti",
+                        collision=False,
+                        gravity=True,
+                    )
+                    dir = Vector2D(
+                        -ball.gameobject.velocity.x,
+                        -ball.gameobject.velocity.y,
+                    )
+
+                    confetti.set_velocity(
+                        dir.rotate_angle(random.uniform(-15, 15)).normalize() * INITIAL_BALL_SPEED * random.uniform(0.8, 1.2)
+                    )
+
                 if ball.gameobject.shape.x < 0:
                     paddle_right.score += 1
                     self.last_scorer = paddle_right
                 else:
                     paddle_left.score += 1
                     self.last_scorer = paddle_left
+
                 # Check for win condition
                 if paddle_left.score >= WIN_CONDITION:
                     self.winner = paddle_left
