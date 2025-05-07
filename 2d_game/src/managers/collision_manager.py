@@ -15,13 +15,14 @@ class CollisionManager:
     def update(self, delta_time: float):
         objects = self.game_manager.gameobjects
         for i in range(len(objects)):
-            if not objects[i].collision:
-                continue
-
+            # Check for OOB regardless of collision settings
             objects[i].out_of_bounds_hor = self.check_out_of_bounds_hor(objects[i])
             objects[i].out_of_bounds_ver = self.check_out_of_bounds_ver(objects[i])
             
+            if not objects[i].collision:
+                continue
 
+            # Check for collisions with other objects
             for j in range(i + 1, len(objects)):
                 obj1 = objects[i]
                 obj2 = objects[j]
