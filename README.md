@@ -18,7 +18,7 @@ python dippid_sender/DIPPID_sender.py -c dippid_sender/mock_config.json -v
 Config can be adjusted to change mock data.  
 The `mock` field of the config should mirror the desired json object but replace the actual values with a string that holds a math equation.  
 This math equation is evaluated each tick based on the current time. Use the variable `t` and functions like `sin()`, `cos()` etc. to build an evaluation function.  
-Prefixing the string with `button:` (e.g. `"button: sin(t) * 4 - 2"`) to send a button press every time the supplied math function bounces at the upper limit.
+Prefix the string with `button:` (e.g. `"button: sin(t) * 4 - 2"`) to send a button press every time the supplied math function bounces at the upper limit.
 
 # 2d_game
 
