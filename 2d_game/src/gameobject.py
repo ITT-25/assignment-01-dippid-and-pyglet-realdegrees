@@ -12,7 +12,8 @@ T = TypeVar("T", bound="Script")
 
 
 class GameObject:
-    visible: bool = True
+    out_of_bounds_hor: bool = False
+    out_of_bounds_ver: bool = False
     gm: "GameManager" = None  # Static reference to the GameManager
 
     def __init__(
@@ -80,7 +81,6 @@ class GameObject:
             script.on_collision_end(other)
 
     def destroy(self):
-        self.visible = False
         self.scripts.clear()
         self.gm.unregister_obj(self)
 

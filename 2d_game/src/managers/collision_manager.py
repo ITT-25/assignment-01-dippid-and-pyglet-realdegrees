@@ -18,8 +18,9 @@ class CollisionManager:
             if not objects[i].collision:
                 continue
 
-            out_of_bounds = self.check_out_of_bounds(objects[i])
-            objects[i].visible = not out_of_bounds
+            objects[i].out_of_bounds_hor = self.check_out_of_bounds_hor(objects[i])
+            objects[i].out_of_bounds_ver = self.check_out_of_bounds_ver(objects[i])
+            
 
             for j in range(i + 1, len(objects)):
                 obj1 = objects[i]
@@ -72,10 +73,13 @@ class CollisionManager:
                     return True
         return False
 
-    def check_out_of_bounds(self, obj: GameObject) -> bool:
+    def check_out_of_bounds_hor(self, obj: GameObject) -> bool:
         return (
             obj.shape.x + obj.shape.width < 0
             or obj.shape.x > self.game_manager.window.width
-            or obj.shape.y + obj.shape.height < 0
+        )
+    def check_out_of_bounds_ver(self, obj: GameObject) -> bool:
+        return (
+            obj.shape.y + obj.shape.height < 0
             or obj.shape.y > self.game_manager.window.height
         )

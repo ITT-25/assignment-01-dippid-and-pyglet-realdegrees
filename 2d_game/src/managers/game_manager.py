@@ -111,7 +111,8 @@ class GameManager:
 
         ball.set_position(self.window.width / 2, self.window.height / 2)
         ball.set_velocity(Vector2D(0, 0))
-        ball.visible = False
+        ball.out_of_bounds_ver = False
+        ball.out_of_bounds_hor = False
         self.state = GameState.WAITING
         self.reset_timer = 0
 
@@ -198,8 +199,8 @@ class GameManager:
                 self.state = GameState.PLAYING
 
         elif self.state == GameState.PLAYING:
-            # Check if ball is out of bounds and set score/state accordingly
-            if not ball.gameobject.visible:
+            # Check if ball is out of bounds on the x axis and set score/state accordingly
+            if ball.gameobject.out_of_bounds_hor:
                 if ball.gameobject.shape.x < 0:
                     paddle_right.score += 1
                     self.last_scorer = paddle_right
