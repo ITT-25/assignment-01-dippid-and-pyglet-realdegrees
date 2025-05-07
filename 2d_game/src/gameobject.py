@@ -13,17 +13,16 @@ T = TypeVar("T", bound="Script")
 
 class GameObject:
     visible: bool = True
+    gm: "GameManager" = None  # Static reference to the GameManager
 
     def __init__(
         self,
-        gm: "GameManager",
         shape: shapes.RoundedRectangle,
         name: str = "",
         tag: str = "",
         collision: bool = True,
     ):
         self.velocity = Vector2D(0, 0)
-        self.gm = gm
         self.shape = shape
         self.name = name
         self.tag = tag
@@ -32,17 +31,16 @@ class GameObject:
         # Store previous position for collision sweeping
         self.prev_x = self.shape.x
         self.prev_y = self.shape.y
-        gm.register_obj(self)
+        GameObject.gm.register_obj(self)
 
     @staticmethod
     def create(
-        game_manager: "GameManager",
         shape,
         name: str = "",
         tag: str = "",
         collision: bool = True,
     ):
-        obj = GameObject(game_manager, shape, name, tag, collision)
+        obj = GameObject(shape, name, tag, collision)
         return obj
 
     def get_script(self, script_type: Type[T]) -> Optional[T]:

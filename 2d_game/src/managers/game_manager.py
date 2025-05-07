@@ -36,6 +36,7 @@ class GameManager:
     def __init__(self, window: "GameWindow"):
         self.window = window
         self.winner = None  # Track the winner for GAME_OVER state
+        GameObject.gm = self  # Set static reference to this GameManager
 
         # Init Ball
         ball_shape = shapes.RoundedRectangle(
@@ -47,9 +48,7 @@ class GameManager:
             color=(255, 255, 255),
             batch=gameobject_batch,
         )
-        ball = GameObject.create(
-            self, ball_shape, name="Ball", tag="ball", collision=True
-        )
+        ball = GameObject.create(ball_shape, name="Ball", tag="ball", collision=True)
         ball.register_script(Ball(ball))
 
         # Init Paddles
@@ -67,7 +66,6 @@ class GameManager:
             )
 
             paddle = GameObject.create(
-                self,
                 paddle_shape,
                 name="Paddle Left" if side == "left" else "Paddle Right",
                 tag="paddle",
@@ -95,7 +93,6 @@ class GameManager:
                 batch=gameobject_batch,
             )
             border = GameObject.create(
-                self,
                 border_shape,
                 name="Border Top" if side == "top" else "Border Bottom",
                 tag="border",
@@ -155,14 +152,14 @@ class GameManager:
         # Forward update call
         for go in self.gameobjects:
             go.update(delta_time)
-            
+
         # Calculate and set game state
         self._handle_state(delta_time)
 
     def exit(self):
         for paddle in [go.get_script(Paddle) for go in self.find_by_script(Paddle)]:
             paddle.disconnect()
-            
+
     def _handle_state(self, delta_time: float):
         """Handle the state transitions of the game."""
 
@@ -177,7 +174,7 @@ class GameManager:
 
         if not ball or not paddle_left or not paddle_right:
             raise ValueError("GameManager is missing required game objects.")
-        
+
         # Only update paddles if the game is in PLAYING state
         if self.state == GameState.PLAYING:
             for go in [go for go in self.gameobjects if go.tag == "paddle"]:
