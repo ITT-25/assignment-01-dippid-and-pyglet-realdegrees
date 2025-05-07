@@ -5,7 +5,6 @@ import random
 from typing import TYPE_CHECKING, List, Literal, Type, TypeVar
 from src.gameobject import GameObject
 from config import (
-    INITIAL_BALL_SIZE,
     INITIAL_BALL_SPEED,
     PADDLE_DIMENSIONS,
     PLAYER_1_PORT,
@@ -47,12 +46,13 @@ class GameManager:
         )
 
         # Init Ball
+        ball_size = 15
         ball_shape = shapes.RoundedRectangle(
-            self.window.width / 2,
-            self.window.height / 2,
-            width=INITIAL_BALL_SIZE,
-            height=INITIAL_BALL_SIZE,
-            radius=INITIAL_BALL_SIZE / 2,
+            self.window.width / 2 - ball_size / 2,
+            self.window.height / 2 - ball_size / 2,
+            width=ball_size,
+            height=ball_size,
+            radius=ball_size / 2,
             color=(255, 255, 255),
             batch=gameobject_batch,
         )
@@ -118,8 +118,8 @@ class GameManager:
             width = 4
             height = 4
             separator_shape = shapes.Rectangle(
-                x=x,
-                y=y,
+                x=x - width / 2,
+                y=y - height / 2,
                 width=width,
                 height=height,
                 color=(255, 255, 255, 40),
@@ -134,7 +134,7 @@ class GameManager:
             
         for i in range(0, self.window.height, 10):
             init_separator_segment(
-                self.window.width / 2 - 5, i + 10
+                self.window.width / 2, i + 10
             )
 
     def reset(self):

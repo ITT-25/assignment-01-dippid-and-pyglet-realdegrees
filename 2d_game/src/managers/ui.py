@@ -65,12 +65,12 @@ class GameUI:
         )
 
         # Score labels
-        y: int = self.game_state.y - VERTICAL_LABEL_MARGIN - FONT_SIZE // 2
+        y: int = self.game_state.y - VERTICAL_LABEL_MARGIN - (FONT_SIZE) // 2
         self.score_left = Text(
-            str(self.paddle_left.score), center_x - score_x_offset, y, FONT_SIZE
+            str(self.paddle_left.score), center_x - score_x_offset, y, FONT_SIZE * 1.5
         )
         self.score_right = Text(
-            str(self.paddle_right.score), center_x + score_x_offset, y, FONT_SIZE
+            str(self.paddle_right.score), center_x + score_x_offset, y, FONT_SIZE * 1.5
         )
 
         # Port labels
@@ -132,4 +132,4 @@ class GameUI:
             return f"{gm.last_scorer.player_id} scored!"
         else:
             self.game_state.color = (255, 255, 255, 120)
-            return "Score"
+            return ""
