@@ -1,5 +1,6 @@
 from __future__ import annotations
 import math
+import os
 import random
 from typing import TYPE_CHECKING, List, Literal, Type, TypeVar
 from src.gameobject import GameObject
@@ -13,7 +14,7 @@ from config import (
     WIN_CONDITION,
 )
 from src.util import GameState, Vector2D
-from pyglet import shapes
+from pyglet import shapes, media
 from src.scripts.ball import Ball
 from src.scripts.paddle import Paddle
 from src.scripts.border import Border
@@ -39,6 +40,11 @@ class GameManager:
         self.window = window
         self.winner = None  # Track the winner for GAME_OVER state
         GameObject.gm = self  # Set static reference to this GameManager
+        
+        self.win_audio = media.load(
+            os.path.abspath(os.path.dirname(__file__) + "/../../assets/pop.ogg"),
+            streaming=False,
+        )
 
         # Init Ball
         ball_shape = shapes.RoundedRectangle(
@@ -55,7 +61,7 @@ class GameManager:
         ball.register_script(Ball(ball))
 
         # Init Paddles
-        def init_paddle(side: Literal["left", "right"]) -> GameObject:
+        def init_paddle(side: Literal["left", "right"]) -> None:
             width = PADDLE_DIMENSIONS.x
             height = PADDLE_DIMENSIONS.y
             paddle_shape = shapes.RoundedRectangle(
@@ -78,13 +84,12 @@ class GameManager:
                 Paddle(paddle, PLAYER_1_PORT if side ==
                        "left" else PLAYER_2_PORT)
             )
-            return paddle
 
         init_paddle("left")
         init_paddle("right")
 
         # Init Borders
-        def init_border(side: Literal["top", "bottom"]) -> GameObject:
+        def init_border(side: Literal["top", "bottom"]) -> None:
             width = self.window.width
             height = self.window.height
             border_shape = shapes.RoundedRectangle(
@@ -104,10 +109,33 @@ class GameManager:
             )
             border.register_script(
                 Border(border, direction=1 if side == "top" else 2))
-            return border
 
         init_border("top")
         init_border("bottom")
+        
+        # Init Separator
+        def init_separator_segment(x: float, y: float) -> None:
+            width = 4
+            height = 4
+            separator_shape = shapes.Rectangle(
+                x=x,
+                y=y,
+                width=width,
+                height=height,
+                color=(255, 255, 255, 40),
+                batch=gameobject_batch,
+            )
+            GameObject.create(
+                separator_shape,
+                name="Separator",
+                tag="separator",
+                collision=False,
+            )
+            
+        for i in range(0, self.window.height, 10):
+            init_separator_segment(
+                self.window.width / 2 - 5, i + 10
+            )
 
     def reset(self):
         ball = self.find("Ball")
@@ -247,6 +275,8 @@ class GameManager:
                 self.reset()
 
     def _spawn_confetti(self, ball: "Ball"):
+        player = self.win_audio.play()
+        player.volume = 0.3
         for i in range(20):
             confetti = GameObject.create(
                         shapes.Rectangle(
