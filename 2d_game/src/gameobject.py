@@ -3,6 +3,7 @@ from pyglet import shapes
 from src.util import Vector2D
 from typing import List, TYPE_CHECKING
 from typing import Type, TypeVar, Optional
+from config import GRAVITY
 
 if TYPE_CHECKING:
     from src.script import Script
@@ -22,12 +23,14 @@ class GameObject:
         name: str = "",
         tag: str = "",
         collision: bool = True,
+        gravity: bool = False,
     ):
         self.velocity = Vector2D(0, 0)
         self.shape = shape
         self.name = name
         self.tag = tag
         self.collision = collision
+        self.gravity = gravity
         self.scripts: List["Script"] = []
         # Store previous position for collision sweeping
         self.prev_x = self.shape.x
@@ -40,8 +43,9 @@ class GameObject:
         name: str = "",
         tag: str = "",
         collision: bool = True,
+        gravity: bool = False,
     ):
-        obj = GameObject(shape, name, tag, collision)
+        obj = GameObject(shape, name, tag, collision, gravity)
         return obj
 
     def get_script(self, script_type: Type[T]) -> Optional[T]:
@@ -67,6 +71,9 @@ class GameObject:
             self.shape.x + self.velocity.x * delta_time,
             self.shape.y + self.velocity.y * delta_time,
         )
+        if self.gravity:
+            self.velocity.y += GRAVITY * delta_time
+            
         for script in self.scripts:
             script.update(delta_time)
 
