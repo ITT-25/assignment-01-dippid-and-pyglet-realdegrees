@@ -32,7 +32,7 @@ class GameManager:
 
     state: GameState = GameState.INACTIVE
     reset_timer: float = 0
-    last_scorer: GameObject | None = None
+    last_scorer: Paddle | None = None
     gameobjects: List[GameObject] = []
 
     def __init__(self, window: "GameWindow"):
@@ -137,10 +137,7 @@ class GameManager:
         if not ball:
             raise ValueError("Ball not found in GameManager.")
 
-        ball.set_position(self.window.width / 2, self.window.height / 2)
-        ball.set_velocity(Vector2D(0, 0))
-        ball.out_of_bounds_ver = False
-        ball.out_of_bounds_hor = False
+        ball.get_script(Ball).reset(self.window.width / 2, self.window.height / 2)
         self.state = GameState.WAITING
         self.reset_timer = 0
 
@@ -217,9 +214,10 @@ class GameManager:
         elif self.state == GameState.WAITING:
             # Wait for button_1 from either player
             if paddle_left.is_ready() and paddle_right.is_ready():
+                target = self.last_scorer or paddle_left
                 ball.gameobject.set_velocity(
                     (
-                        paddle_left.gameobject.get_center()
+                        target.gameobject.get_center()
                         - ball.gameobject.get_center()
                     ).normalize()
                     * INITIAL_BALL_SPEED

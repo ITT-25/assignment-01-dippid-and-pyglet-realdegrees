@@ -57,8 +57,8 @@ class Ball(Script):
             self.play_bounce_sound()
 
     def reset(self, x, y):
-        self.gameobject.shape.x = x - self.gameobject.shape.width / 2 - self.gameobject.shape.width / 2
-        self.gameobject.shape.y = y - self.gameobject.shape.height / 2 - self.gameobject.shape.height / 2
+        self.gameobject.shape.x = x - self.gameobject.shape.width / 2
+        self.gameobject.shape.y = y - self.gameobject.shape.height / 2
         self.gameobject.velocity = Vector2D(0, 0)
         self.gameobject.out_of_bounds_ver = False
         self.gameobject.out_of_bounds_hor = False
