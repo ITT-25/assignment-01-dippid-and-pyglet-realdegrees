@@ -277,7 +277,7 @@ class GameManager:
     def _spawn_confetti(self, ball: "Ball"):
         player = self.win_audio.play()
         player.volume = 0.3
-        for i in range(20):
+        for i in range(15):
             confetti = GameObject.create(
                         shapes.Rectangle(
                             ball.gameobject.shape.x,
@@ -295,11 +295,11 @@ class GameManager:
                     )
             dir = Vector2D(
                         -ball.gameobject.velocity.x,
-                        -ball.gameobject.velocity.y,
+                        0,
                     )
 
             confetti.set_velocity(
-                        dir.rotate_angle(random.uniform(-15, 15)).normalize() * INITIAL_BALL_SPEED * random.uniform(0.7, 1.1)
+                        dir.rotate_angle(random.uniform(-15, 15)).normalize() * INITIAL_BALL_SPEED * random.uniform(0.8, 1.2)
                     )
             confetti.set_position(
                 min(max(ball.gameobject.shape.x, confetti.shape.width / 2), self.window.width - confetti.shape.width / 2),
