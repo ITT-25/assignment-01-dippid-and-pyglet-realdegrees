@@ -36,7 +36,13 @@ class CollisionManager:
                     self.collisions.remove((obj1, obj2))
 
     def check_collision(self, obj1: GameObject, obj2: GameObject) -> bool:
-        COLLISION_ACCURACY = 50
+        """
+        Checks for collision between two game objects using continuous collision detection (CCD).
+        It interpolates the movement of each corner of the first object (obj1) from its previous
+        position to its current position and checks if any of these interpolated points
+        are inside the second object (obj2).
+        """
+        COLLISION_ACCURACY = 10
         corners_prev = [
             (obj1.prev_x, obj1.prev_y),
             (obj1.prev_x + obj1.shape.width, obj1.prev_y),
