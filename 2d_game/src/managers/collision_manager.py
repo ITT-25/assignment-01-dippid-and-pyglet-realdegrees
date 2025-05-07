@@ -18,7 +18,7 @@ class CollisionManager:
             # Check for OOB regardless of collision settings
             objects[i].out_of_bounds_hor = self.check_out_of_bounds_hor(objects[i])
             objects[i].out_of_bounds_ver = self.check_out_of_bounds_ver(objects[i])
-            
+
             if not objects[i].collision:
                 continue
 
@@ -79,6 +79,7 @@ class CollisionManager:
             obj.shape.x + obj.shape.width < 0
             or obj.shape.x > self.game_manager.window.width
         )
+
     def check_out_of_bounds_ver(self, obj: GameObject) -> bool:
         return (
             obj.shape.y + obj.shape.height < 0

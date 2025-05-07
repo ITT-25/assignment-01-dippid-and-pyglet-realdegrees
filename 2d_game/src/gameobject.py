@@ -73,7 +73,7 @@ class GameObject:
         )
         if self.gravity:
             self.velocity.y += GRAVITY * delta_time
-            
+
         for script in self.scripts:
             script.update(delta_time)
 

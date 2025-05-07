@@ -39,7 +39,7 @@ class GameManager:
         self.window = window
         self.winner = None  # Track the winner for GAME_OVER state
         GameObject.gm = self  # Set static reference to this GameManager
-        
+
         self.win_audio = media.load(
             os.path.abspath(os.path.dirname(__file__) + "/../../assets/pop.ogg"),
             streaming=False,
@@ -56,8 +56,7 @@ class GameManager:
             color=(255, 255, 255),
             batch=gameobject_batch,
         )
-        ball = GameObject.create(
-            ball_shape, name="Ball", tag="ball", collision=True)
+        ball = GameObject.create(ball_shape, name="Ball", tag="ball", collision=True)
         ball.register_script(Ball(ball))
 
         # Init Paddles
@@ -81,8 +80,7 @@ class GameManager:
                 collision=True,
             )
             paddle.register_script(
-                Paddle(paddle, PLAYER_1_PORT if side ==
-                       "left" else PLAYER_2_PORT)
+                Paddle(paddle, PLAYER_1_PORT if side == "left" else PLAYER_2_PORT)
             )
 
         init_paddle("left")
@@ -107,12 +105,11 @@ class GameManager:
                 tag="border",
                 collision=True,
             )
-            border.register_script(
-                Border(border, direction=1 if side == "top" else 2))
+            border.register_script(Border(border, direction=1 if side == "top" else 2))
 
         init_border("top")
         init_border("bottom")
-        
+
         # Init Separator
         def init_separator_segment(x: float, y: float) -> None:
             width = 4
@@ -131,11 +128,9 @@ class GameManager:
                 tag="separator",
                 collision=False,
             )
-            
+
         for i in range(0, self.window.height, 10):
-            init_separator_segment(
-                self.window.width / 2, i + 10
-            )
+            init_separator_segment(self.window.width / 2, i + 10)
 
     def reset(self):
         ball = self.find("Ball")
@@ -197,16 +192,13 @@ class GameManager:
     def _handle_state(self, delta_time: float):
         """Handle the state transitions of the game."""
 
-        ball = self.find("Ball").get_script(
-            Ball) if self.find("Ball") else None
+        ball = self.find("Ball").get_script(Ball) if self.find("Ball") else None
         paddles = self.find_by_script(Paddle)
         paddle_left = next(
-            (p.get_script(Paddle)
-             for p in paddles if p.name == "Paddle Left"), None
+            (p.get_script(Paddle) for p in paddles if p.name == "Paddle Left"), None
         )
         paddle_right = next(
-            (p.get_script(Paddle)
-             for p in paddles if p.name == "Paddle Right"), None
+            (p.get_script(Paddle) for p in paddles if p.name == "Paddle Right"), None
         )
 
         if not ball or not paddle_left or not paddle_right:
@@ -279,30 +271,39 @@ class GameManager:
         player.volume = 0.3
         for i in range(15):
             confetti = GameObject.create(
-                        shapes.Rectangle(
-                            ball.gameobject.shape.x,
-                            ball.gameobject.shape.y,
-                            width=3,
-                            height=3,
-                            color=(random.randint(50, 255), random.randint(
-                                50, 255), random.randint(50, 255), random.randint(150, 255)),
-                            batch=gameobject_batch,
-                        ),
-                        name="Confetti",
-                        tag="confetti",
-                        collision=False,
-                        gravity=True,
-                    )
+                shapes.Rectangle(
+                    ball.gameobject.shape.x,
+                    ball.gameobject.shape.y,
+                    width=3,
+                    height=3,
+                    color=(
+                        random.randint(50, 255),
+                        random.randint(50, 255),
+                        random.randint(50, 255),
+                        random.randint(150, 255),
+                    ),
+                    batch=gameobject_batch,
+                ),
+                name="Confetti",
+                tag="confetti",
+                collision=False,
+                gravity=True,
+            )
             dir = Vector2D(
-                        -ball.gameobject.velocity.x,
-                        0,
-                    )
+                -ball.gameobject.velocity.x,
+                0,
+            )
 
             confetti.set_velocity(
-                        dir.rotate_angle(random.uniform(-15, 15)).normalize() * INITIAL_BALL_SPEED * random.uniform(0.8, 1.2)
-                    )
+                dir.rotate_angle(random.uniform(-15, 15)).normalize()
+                * INITIAL_BALL_SPEED
+                * random.uniform(0.8, 1.2)
+            )
             confetti.set_position(
-                min(max(ball.gameobject.shape.x, confetti.shape.width / 2), self.window.width - confetti.shape.width / 2),
+                min(
+                    max(ball.gameobject.shape.x, confetti.shape.width / 2),
+                    self.window.width - confetti.shape.width / 2,
+                ),
                 ball.gameobject.shape.y,
             )
             confetti.register_script(Confetti(confetti))

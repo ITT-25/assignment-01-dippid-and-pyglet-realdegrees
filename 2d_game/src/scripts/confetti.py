@@ -1,5 +1,6 @@
 from src.script import Script
 
+
 class Confetti(Script):
     def __init__(self, gameobject):
         super().__init__()

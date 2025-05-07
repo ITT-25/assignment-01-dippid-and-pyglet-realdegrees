@@ -38,7 +38,7 @@ class Vector2D:
         return Vector2D(
             self.x - 2 * dot_product * normal.x, self.y - 2 * dot_product * normal.y
         )
-    
+
     def rotate_angle(self, angle: float) -> Vector2D:
         """Rotate the vector by a given angle in degrees."""
         rad = angle * (3.141592653589793 / 180)
