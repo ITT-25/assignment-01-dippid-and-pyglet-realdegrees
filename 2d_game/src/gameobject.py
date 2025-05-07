@@ -32,7 +32,7 @@ class GameObject:
         # Store previous position for collision sweeping
         self.prev_x = self.shape.x
         self.prev_y = self.shape.y
-        gm.register_go(self)
+        gm.register_obj(self)
 
     @staticmethod
     def create(
@@ -84,7 +84,7 @@ class GameObject:
     def destroy(self):
         self.visible = False
         self.scripts.clear()
-        self.gm.unregister_go(self)
+        self.gm.unregister_obj(self)
 
     def set_position(self, x: float, y: float):
         self.shape.x = x

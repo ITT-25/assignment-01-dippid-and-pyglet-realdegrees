@@ -142,11 +142,11 @@ class GameManager:
                 return go
         return None
 
-    def register_go(self, gameobject: GameObject):
+    def register_obj(self, gameobject: GameObject):
         """Register a GameObject with the GameManager."""
         self.gameobjects.append(gameobject)
 
-    def unregister_go(self, gameobject: GameObject):
+    def unregister_obj(self, gameobject: GameObject):
         """Unregister a GameObject from the GameManager."""
         if gameobject in self.gameobjects:
             self.gameobjects.remove(gameobject)
@@ -155,6 +155,16 @@ class GameManager:
         # Forward update call
         for go in self.gameobjects:
             go.update(delta_time)
+            
+        # Calculate and set game state
+        self._handle_state(delta_time)
+
+    def exit(self):
+        for paddle in [go.get_script(Paddle) for go in self.find_by_script(Paddle)]:
+            paddle.disconnect()
+            
+    def _handle_state(self, delta_time: float):
+        """Handle the state transitions of the game."""
 
         ball = self.find("Ball").get_script(Ball) if self.find("Ball") else None
         paddles = self.find_by_script(Paddle)
@@ -167,7 +177,7 @@ class GameManager:
 
         if not ball or not paddle_left or not paddle_right:
             raise ValueError("GameManager is missing required game objects.")
-
+        
         # Only update paddles if the game is in PLAYING state
         if self.state == GameState.PLAYING:
             for go in [go for go in self.gameobjects if go.tag == "paddle"]:
@@ -225,7 +235,3 @@ class GameManager:
                 self.last_scorer = None
                 self.state = GameState.INACTIVE
                 self.reset()
-
-    def exit(self):
-        for paddle in [go.get_script(Paddle) for go in self.find_by_script(Paddle)]:
-            paddle.disconnect()
