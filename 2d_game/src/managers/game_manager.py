@@ -17,6 +17,7 @@ from pyglet import shapes
 from src.scripts.ball import Ball
 from src.scripts.paddle import Paddle
 from src.scripts.border import Border
+from src.scripts.confetti import Confetti
 from src.util import gameobject_batch
 
 if TYPE_CHECKING:
@@ -209,30 +210,7 @@ class GameManager:
             # Check if ball is out of bounds on the x axis and set score/state accordingly
             if ball.gameobject.out_of_bounds_hor:
                 # Spawn confetti for scored point at ball position in the opposite direction of its velocity
-                for i in range(20):
-                    confetti = GameObject.create(
-                        shapes.Rectangle(
-                            ball.gameobject.shape.x,
-                            ball.gameobject.shape.y,
-                            width=3,
-                            height=3,
-                            color=(random.randint(50, 255), random.randint(
-                                50, 255), random.randint(50, 255), random.randint(150, 255)),
-                            batch=gameobject_batch,
-                        ),
-                        name="Confetti",
-                        tag="confetti",
-                        collision=False,
-                        gravity=True,
-                    )
-                    dir = Vector2D(
-                        -ball.gameobject.velocity.x,
-                        -ball.gameobject.velocity.y,
-                    )
-
-                    confetti.set_velocity(
-                        dir.rotate_angle(random.uniform(-15, 15)).normalize() * INITIAL_BALL_SPEED * random.uniform(0.8, 1.2)
-                    )
+                self._spawn_confetti(ball)
 
                 if ball.gameobject.shape.x < 0:
                     paddle_right.score += 1
@@ -267,3 +245,34 @@ class GameManager:
                 self.last_scorer = None
                 self.state = GameState.INACTIVE
                 self.reset()
+
+    def _spawn_confetti(self, ball: "Ball"):
+        for i in range(20):
+            confetti = GameObject.create(
+                        shapes.Rectangle(
+                            ball.gameobject.shape.x,
+                            ball.gameobject.shape.y,
+                            width=3,
+                            height=3,
+                            color=(random.randint(50, 255), random.randint(
+                                50, 255), random.randint(50, 255), random.randint(150, 255)),
+                            batch=gameobject_batch,
+                        ),
+                        name="Confetti",
+                        tag="confetti",
+                        collision=False,
+                        gravity=True,
+                    )
+            dir = Vector2D(
+                        -ball.gameobject.velocity.x,
+                        -ball.gameobject.velocity.y,
+                    )
+
+            confetti.set_velocity(
+                        dir.rotate_angle(random.uniform(-15, 15)).normalize() * INITIAL_BALL_SPEED * random.uniform(0.7, 1.1)
+                    )
+            confetti.set_position(
+                min(max(ball.gameobject.shape.x, confetti.shape.width / 2), self.window.width - confetti.shape.width / 2),
+                ball.gameobject.shape.y,
+            )
+            confetti.register_script(Confetti(confetti))
