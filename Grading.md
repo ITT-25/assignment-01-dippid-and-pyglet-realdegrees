@@ -1,9 +1,8 @@
 ## Fabian Schebera (13/15P)
 
-### 1 DIPPID Sender (4/5P)
+### 1 DIPPID Sender (5/5P)
 
- * A bit overengineered
- * We could not check if the packages arrive because it is not compatible with DIPPID (-1)
+ * A bit overengineered:)
 
 
 ### 2 2D Game (9/10P)
